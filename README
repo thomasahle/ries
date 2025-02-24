@@ -6,9 +6,12 @@ cd emsdk
 ./emsdk activate latest
 source ./emsdk_env.sh
 
-emcc -O2 ries.c -o ries.js -s WASM=1 \
+emcc -O2 ries.c -o ries.js \
+     -s WASM=1 \
      -s MODULARIZE=1 \
+     -s 'EXPORT_NAME="createRIESModule"' \
      -s INVOKE_RUN=0 \
      -s EXPORTED_FUNCTIONS='["_main"]' \
      -s EXPORTED_RUNTIME_METHODS='["ccall","callMain"]' \
+     -s ALLOW_MEMORY_GROWTH=1 \
      -lm
