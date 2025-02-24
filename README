@@ -1,0 +1,14 @@
+# Build instructions
+
+git clone https://github.com/emscripten-core/emsdk.git
+cd emsdk
+./emsdk install latest
+./emsdk activate latest
+source ./emsdk_env.sh
+
+emcc -O2 ries.c -o ries.js -s WASM=1 \
+     -s MODULARIZE=1 \
+     -s INVOKE_RUN=0 \
+     -s EXPORTED_FUNCTIONS='["_main"]' \
+     -s EXPORTED_RUNTIME_METHODS='["ccall","callMain"]' \
+     -lm
