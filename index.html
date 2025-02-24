@@ -1,154 +1,156 @@
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-40XB6Q54CE"></script>
-  <script>
-     window.dataLayer = window.dataLayer || [];
-     function gtag(){dataLayer.push(arguments);}
-     gtag('js', new Date());
-     gtag('config', 'G-40XB6Q54CE');
-  </script>
+   <head>
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-40XB6Q54CE"></script>
+      <script>
+         window.dataLayer = window.dataLayer || [];
+         function gtag(){dataLayer.push(arguments);}
+         gtag('js', new Date());
+         gtag('config', 'G-40XB6Q54CE');
+      </script>
 
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>RIES Equation Solver (Modularized)</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="The Inverse Symbolic Calculator is a tool designed to work backwards from a numerical value to identify possible closed-form, symbolic expressions that could represent it. Instead of the usual process—where you start with a symbolic formula and then compute a numerical value—it takes a number (often obtained through computation or experimentation) and searches through a database of known constants and expressions to suggest candidate formulas.">
+      <title>RIES Equation Solver Online</title>
+      <style>
+body {
+   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+   background-color: #f9f9f9;
+   margin: 0;
+   padding: 20px;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+}
     .container {
-      background-color: #fff;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      max-width: 700px;
-      width: 100%;
-      flex: 1;
+       background-color: #fff;
+       border-radius: 8px;
+       padding: 20px;
+       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+       max-width: 700px;
+       width: 100%;
+       flex: 1;
     }
     h1 {
-      margin-top: 0;
+       margin-top: 0;
     }
     .input-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
+       display: flex;
+       align-items: center;
+       gap: 10px;
+       margin-bottom: 10px;
     }
-    .input-row input[type="text"] {
-      flex: 1;
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+    .input-row input[type="number"] {
+       flex: 1;
+       padding: 10px;
+       font-size: 16px;
+       border: 1px solid #ccc;
+       border-radius: 4px;
     }
     .input-row button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #007BFF;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      white-space: nowrap;
+       padding: 10px 20px;
+       font-size: 16px;
+       background-color: #007BFF;
+       color: #fff;
+       border: none;
+       border-radius: 4px;
+       cursor: pointer;
+       white-space: nowrap;
     }
     .input-row button:hover {
-      background-color: #0056b3;
+       background-color: #0056b3;
     }
     pre {
-      background: #eee;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 15px;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      overflow-y: auto;
-      min-height: 50vh;
+       background: #eee;
+       border: 1px solid #ccc;
+       border-radius: 4px;
+       padding: 15px;
+       white-space: pre-wrap;
+       word-wrap: break-word;
+       overflow-y: auto;
+       min-height: 50vh;
     }
     footer {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 0.9em;
-      color: #555;
+       text-align: center;
+       margin-top: 20px;
+       font-size: 0.9em;
+       color: #555;
     }
     footer a {
-      color: #007BFF;
-      text-decoration: none;
+       color: #007BFF;
+       text-decoration: none;
     }
     footer a:hover {
-      text-decoration: underline;
+       text-decoration: underline;
     }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>RIES Equation Solver</h1>
-    <p>Enter a target value and run RIES to find approximate algebraic equations:</p>
+      </style>
+   </head>
+   <body>
+      <div class="container">
+         <h1>Inverse Symbolic Calculator</h1>
+         <p>
+         Given a numerical value, identify possible algebraic equations that could represent it:</p>
 
-    <div class="input-row">
-      <input type="text" id="numberInput" placeholder="Enter a number" />
-      <button id="solveButton">Solve</button>
-    </div>
+         <div class="input-row">
+            <input type="number" id="numberInput" placeholder="3.14159" />
+            <button id="solveButton">Solve</button>
+         </div>
 
-    <pre id="output"></pre>
-  </div>
+         <pre id="output"></pre>
+      </div>
 
-  <footer>
-    <p>Based on RIES by <a href="https://mrob.com/pub/ries/index.html" target="_blank">Robert Munafo</a></p>    <p>
-      Website by
-      <a href="https://thomasahle.com">Thomas Ahle</a> &mdash;
-      <a href="https://github.com/thomasahle/ries" target="_blank">Edit on Github</a>
-    </p>
-  </footer>
+      <footer>
+         <p>
+         Based on RIES by
+         <a href="https://mrob.com/pub/ries/index.html" target="_blank">Robert Munafo</a></p>
+         <p>
+         Website by
+         <a href="https://thomasahle.com">Thomas Ahle</a> &mdash;
+         <a href="https://github.com/thomasahle/ries" target="_blank">Edit on Github</a>
+         </p>
+      </footer>
 
-  <!-- Load the Emscripten-generated JS (which exports createRIESModule) -->
-  <script src="ries.js"></script>
-  <script>
-    // References to HTML elements
-    const outputElement = document.getElementById('output');
-    const inputElement = document.getElementById('numberInput');
-    const solveButton = document.getElementById('solveButton');
+      <!-- Load the Emscripten-generated JS (which exports createRIESModule) -->
+      <script src="ries.js"></script>
+      <script>
+         // References to HTML elements
+         const outputElement = document.getElementById('output');
+         const inputElement = document.getElementById('numberInput');
+         const solveButton = document.getElementById('solveButton');
 
-    // Run RIES in a new module instance each time
-    function runRIES() {
-      outputElement.textContent = ''; // clear previous output
+         // Run RIES in a new module instance each time
+         async function runRIES() {
+            outputElement.textContent = '';
+            const num = inputElement.value.trim();
+            if (!num) return;
 
-      const num = inputElement.value.trim();
-      if (!num) return; // no input, do nothing
+            try {
+               const moduleInstance = await createRIESModule({
+                  print: (text) => {
+                     outputElement.textContent += text + '\n';
+                  },
+                  printErr: (text) => {
+                     console.error(text);
+                  }
+               });
+               moduleInstance.callMain([num]);
+            } catch (err) {
+               console.error('Error creating RIES module:', err);
+               outputElement.textContent = 'An error occurred. Please try again.';
+            }
+         }
 
-      // Create a fresh module instance using the modularized factory function.
-      createRIESModule({
-        // Capture standard output and error
-        print: (text) => {
-          outputElement.textContent += text + '\n';
-        },
-        printErr: (text) => {
-          console.error(text);
-        }
-      }).then((moduleInstance) => {
-        // Once the WASM module is initialized, call main() with the user's number.
-        moduleInstance.callMain([num]);
-      }).catch((err) => {
-        console.error('Error creating RIES module:', err);
-      });
-    }
+         // Solve on button click
+         solveButton.addEventListener('click', runRIES);
 
-    // Solve on button click
-    solveButton.addEventListener('click', runRIES);
-
-    // Solve on Enter key press in the input field
-    inputElement.addEventListener('keyup', (event) => {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        runRIES();
-      }
-    });
-  </script>
-</body>
+         // Solve on Enter key press in the input field
+         inputElement.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+               event.preventDefault();
+               runRIES();
+            }
+         });
+      </script>
+   </body>
 </html>
