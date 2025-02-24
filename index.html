@@ -2,7 +2,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-40XB6Q54CE"></script>
+  <script>
+     window.dataLayer = window.dataLayer || [];
+     function gtag(){dataLayer.push(arguments);}
+     gtag('js', new Date());
+     gtag('config', 'G-40XB6Q54CE');
+  </script>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>RIES Equation Solver (Modularized)</title>
   <style>
     body {
@@ -91,7 +100,11 @@
   </div>
 
   <footer>
-    <p>Based on RIES by <a href="https://mrob.com/pub/ries/index.html" target="_blank">Robert Munafo</a></p>
+    <p>Based on RIES by <a href="https://mrob.com/pub/ries/index.html" target="_blank">Robert Munafo</a></p>    <p>
+      Website by
+      <a href="https://thomasahle.com">Thomas Ahle</a> &mdash;
+      <a href="https://github.com/thomasahle/ries" target="_blank">Edit on Github</a>
+    </p>
   </footer>
 
   <!-- Load the Emscripten-generated JS (which exports createRIESModule) -->
