@@ -67,5 +67,4 @@
 /* Wrapper for the row to allow the overlay to float above */
 .equation-row-wrapper {
   position: relative;
-  margin-bottom: 8px;
 }
