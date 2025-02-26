@@ -1,0 +1,35 @@
+/* Individual equation row styling */
+.equation-row {
+  display: grid;
+  grid-template-columns: 30% 30% 40%;
+  align-items: baseline;
+  gap: 4px;
+  cursor: pointer;
+  width: 100%;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+.equation-row:hover {
+  outline: 1px solid rgba(255, 165, 0, 0.6);
+}
+
+.equation-copied {
+  outline: 2px solid rgba(255, 165, 0, 0.7);
+}
+
+/* Equation parts */
+.equation-lhs {
+  text-align: right;
+  justify-self: end;
+}
+
+.equation-rhs {
+  text-align: left;
+  justify-self: start;
+}
+
+.equation-x-value {
+  text-align: left;
+  padding-left: 20px;
+}

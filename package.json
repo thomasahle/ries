@@ -1,0 +1,25 @@
+{
+  "name": "ries",
+  "version": "1.0.0",
+  "description": "RIES equation solver",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node test_parser.js && node test_forth_parser.js"
+  },
+  "author": "",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-query": "^3.39.3"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.14"
+  }
+}

@@ -1,0 +1,15 @@
+/* Equations container */
+.equations-container {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Separator between equation groups */
+.equation-separator {
+  height: 0.5px;
+  background-color: #ccc;
+  width: 100%;
+}
