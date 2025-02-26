@@ -311,7 +311,7 @@ function displayAligned(eqs, T) {
   }
 
   let Tnum = null;
-  let decimals = 8; // fallback
+  let decimals = 12; // fallback
   if (T) {
     Tnum = parseFloat(T);
     // Count decimal places in T

@@ -17,66 +17,9 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  // Single state for input value - this is also the target value for calculations
   const [inputValue, setInputValue] = useState('');
   
-  // Load RIES module when the app mounts
-  useEffect(() => {
-    console.log("App mounted. Checking for RIES module...");
-    
-    // Function to initialize the RIES module
-    const initRIESModule = async () => {
-      if (typeof createRIESModule !== 'function') {
-        console.error("createRIESModule is not available");
-        return;
-      }
-      
-      if (!window.riesModuleInstance) {
-        try {
-          console.log("Creating RIES module instance");
-          
-          // Initialize the RIES module
-          window.riesModuleInstance = await createRIESModule({
-            print: text => {
-              console.log("RIES output:", text);
-              // Store output for debugging
-              if (!window.lastRIESOutput) window.lastRIESOutput = "";
-              window.lastRIESOutput += text + "\n";
-            },
-            printErr: text => console.error("RIES error:", text)
-          });
-          
-          window.RIES_MODULE_LOADED = true;
-          console.log("RIES module loaded successfully");
-          
-          // Run a quick test calculation to verify it works
-          try {
-            const originalPrint = window.riesModuleInstance.print;
-            
-            // Capture output with a special print function
-            window.riesModuleInstance.print = function(text) {
-              console.log("Test calculation output:", text);
-            };
-            
-            // Run a simple test calculation
-            window.riesModuleInstance.callMain(["-F3", "3.14159"]);
-            
-            // Restore original print function
-            window.riesModuleInstance.print = originalPrint;
-            console.log("Test calculation completed successfully");
-          } catch (error) {
-            console.error("Test calculation failed:", error);
-          }
-        } catch (error) {
-          console.error("Failed to initialize RIES module:", error);
-        }
-      }
-    };
-    
-    // Initialize the module
-    initRIESModule();
-  }, []);
-  
+
   // Read URL parameters on initial load
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -91,7 +34,6 @@ function App() {
   const handleInputChange = (value) => {
     setInputValue(value);
     
-    // Update URL if the value is not empty
     if (value && value.trim() !== '') {
       const url = new URL(window.location);
       url.searchParams.set("T", value);
@@ -117,15 +59,9 @@ function App() {
         <div className="container">
           <h1>Inverse Symbolic Calculator</h1>
           <p>Enter a numerical value to find matching equations:</p>
-          
-          <InputForm 
-            value={inputValue} 
-            onChange={handleInputChange} 
-          />
-          
+          <InputForm value={inputValue} onChange={handleInputChange} />
           <EquationDisplay targetValue={inputValue} />
-          
-          {inputValue && <DebugPanel targetValue={inputValue} />}
+          {inputValue && <DebugPanel targetValue={inputValue} onRandomValue={handleInputChange} />}
         </div>
       </MathJaxProvider>
     </QueryClientProvider>

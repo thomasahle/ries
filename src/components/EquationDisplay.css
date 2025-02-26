@@ -5,6 +5,7 @@
   min-height: 100px;
   display: flex;
   flex-direction: column;
+  transition: filter 0.3s ease;
 }
 
 /* Separator between equation groups */
@@ -12,4 +13,28 @@
   height: 0.5px;
   background-color: #ccc;
   width: 100%;
+}
+
+.blurred {
+  filter: blur(2px);
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+/* Offscreen container for pre-typesetting */
+.offscreen {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  width: 600px; /* Adjust to match your visible container's width */
 }

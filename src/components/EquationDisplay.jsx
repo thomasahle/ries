@@ -1,37 +1,16 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { useRIESCalculation } from '../hooks/useRIESCalculation';
-import { useMathJax } from '../utils/MathJaxContext';
 import EquationRow from './EquationRow';
 import './EquationDisplay.css';
 
-const EquationDisplay = ({ targetValue }) => {
-  const containerRef = useRef(null);
-  const { equations, isLoading, isError, error, rawOutput } = useRIESCalculation(targetValue);
-  
-  // Get access to MathJax context for equation rendering
-  const { typeset, isReady } = useMathJax();
-  
-  // Typeset equations with MathJax after they're rendered or updated
-  useEffect(() => {
-    if (isReady && containerRef.current && equations?.length > 0) {
-      // Schedule typesetting in the next microtask to ensure DOM is updated
-      setTimeout(() => {
-        try {
-          typeset([containerRef.current]);
-        } catch (err) {
-          console.error("MathJax typesetting error:", err);
-        }
-      }, 0);
-    }
-  }, [equations, isReady, typeset]);
+export default function EquationDisplay({ targetValue }) {
+  // Destructure computedTarget from the hook so that the displayed equations stay in sync.
+  const { equations, isLoading, isFetching, isError, error, computedTarget } = useRIESCalculation(targetValue);
 
-  // If no targetValue provided yet, show empty state
+  // When input is empty, show a friendly message.
   if (!targetValue || targetValue.trim() === '') {
     return (
-      <div 
-        ref={containerRef} 
-        className="equations-container"
-      >
+      <div className="equations-container">
         <div className="message-block">
           <p>Enter a numerical value to find equations.</p>
         </div>
@@ -39,13 +18,10 @@ const EquationDisplay = ({ targetValue }) => {
     );
   }
 
-  // Show loading state
-  if (isLoading) {
+  // Show loading indicator if no data is available yet.
+  if (isLoading && (!equations || equations.length === 0)) {
     return (
-      <div 
-        ref={containerRef} 
-        className="equations-container blurred"
-      >
+      <div className="equations-container blurred">
         <div className="loading-indicator">
           <p>Calculating equations for {targetValue}...</p>
           <div className="spinner"></div>
@@ -54,13 +30,10 @@ const EquationDisplay = ({ targetValue }) => {
     );
   }
 
-  // Show error state
+  // Handle error state.
   if (isError) {
     return (
-      <div 
-        ref={containerRef}
-        className="equations-container"
-      >
+      <div className="equations-container">
         <div className="message-block">
           <p>{error?.message || "An error occurred during calculation. Please try again."}</p>
         </div>
@@ -68,13 +41,10 @@ const EquationDisplay = ({ targetValue }) => {
     );
   }
 
-  // Handle case with no equations
+  // Handle "no equations found"
   if (!equations || equations.length === 0) {
     return (
-      <div 
-        ref={containerRef}
-        className="equations-container"
-      >
+      <div className="equations-container">
         <div className="message-block">
           <p>No equations found. Try a different value like π ≈ 3.14159</p>
         </div>
@@ -82,35 +52,28 @@ const EquationDisplay = ({ targetValue }) => {
     );
   }
 
-  // Calculate T display precision for highlighting
-  let decimals = 8; // fallback
-  if (targetValue) {
-    const decMatch = targetValue.match(/\.(\d+)$/);
-    if (decMatch) decimals = decMatch[1].length;
-  }
-
-  // Show equation results
   return (
-    <div 
-      ref={containerRef} 
-      className="equations-container"
-    >
-      {equations.map((equation, index) => (
-        <React.Fragment key={index}>
-          <EquationRow 
-            equation={equation} 
-            targetValue={targetValue}
-            decimals={decimals}
-          />
-          
-          {/* Add separator after every 3rd equation */}
-          {(index + 1) % 3 === 0 && index < equations.length - 1 && (
-            <div className="equation-separator"></div>
-          )}
-        </React.Fragment>
-      ))}
+    <div className="equations-container-wrapper" style={{ position: 'relative' }}>
+      {/* Apply the blurred class when a new request is pending */}
+      <div className={`equations-container ${isFetching ? 'blurred' : ''}`}>
+        {equations.map((equation, index) => (
+          <React.Fragment key={index}>
+            <EquationRow
+              equation={equation}
+              targetValue={computedTarget}  // Use frozen target from the worker result
+              decimals={8} // adjust as needed
+            />
+            {(index + 1) % 3 === 0 && index < equations.length - 1 && (
+              <div className="equation-separator"></div>
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+      {isFetching && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+        </div>
+      )}
     </div>
   );
-};
-
-export default EquationDisplay;
+}

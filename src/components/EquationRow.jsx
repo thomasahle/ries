@@ -1,27 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import './EquationRow.css';
-import { highlightDifference } from '../utils/formatting';
+import React, { useRef, useState, useEffect } from 'react';
 import { useMathJax } from '../utils/MathJaxContext';
+import { highlightDifference } from '../utils/formatting';
+import './EquationRow.css';
 
-const EquationRow = ({ equation, targetValue, decimals }) => {
+export default function EquationRow({ equation, targetValue, decimals }) {
+  const { isReady, typesetPromise } = useMathJax();
+  const hiddenRef = useRef(null);
+  const [renderedHTML, setRenderedHTML] = useState('');
   const [isCopied, setIsCopied] = useState(false);
-  
-  // Calculate x value with highlighting
-  let xValLatex = "T"; // fallback
-  if (equation.offset && targetValue) {
-    const offsetVal = parseFloat((equation.offset || "").replace(/\s+/g, "")) || 0;
-    const Tnum = parseFloat(targetValue);
-    const xVal = (Tnum + offsetVal).toFixed(decimals);
-    xValLatex = highlightDifference(targetValue, xVal);
-  } else if (targetValue === "0") {
-    xValLatex = "0";
-  }
 
-  // Copy equation to clipboard when clicked
+  // Compute x-value based on the frozen targetValue.
+  const offsetVal = parseFloat((equation.offset || "").replace(/\s+/g, "")) || 0;
+  const Tnum = parseFloat(targetValue);
+  const xVal = (!isNaN(Tnum)) ? (Tnum + offsetVal).toFixed(decimals) : targetValue;
+  const xValLatex = highlightDifference(targetValue, xVal);
+
+  // Build LaTeX for each part.
+  const lhsLatex = `\\(${equation.lhs} =\\)`;
+  const rhsLatex = `\\(${equation.rhs}\\)`;
+  const xLatex   = `\\(x = ${xValLatex}\\)`;
+  const fullLatex = `
+    <span class="equation-lhs">${lhsLatex}</span>
+    <span class="equation-rhs">${rhsLatex}</span>
+    <span class="equation-x-value">${xLatex}</span>
+  `;
+
+  // Copy equation to clipboard.
   const copyEquation = () => {
-    // Create LaTeX representation of the equation
     const latexEquation = `${equation.lhs} = ${equation.rhs}`;
-    
     navigator.clipboard.writeText(latexEquation)
       .then(() => {
         setIsCopied(true);
@@ -30,26 +36,25 @@ const EquationRow = ({ equation, targetValue, decimals }) => {
       .catch(err => console.error('Failed to copy equation to clipboard', err));
   };
 
-  // Get MathJax context
-  const { typeset, isReady } = useMathJax();
-  
-  // Use useEffect to trigger MathJax rendering when isCopied changes
+  // Pre-render offscreen: render raw LaTeX into a hidden container, typeset it, then update renderedHTML.
   useEffect(() => {
-    if (isReady && isCopied) {
-      typeset();
-    }
-  }, [isCopied, isReady, typeset]);
+    if (!isReady || !hiddenRef.current) return;
+    hiddenRef.current.innerHTML = fullLatex;
+    typesetPromise([hiddenRef.current])
+      .then(() => {
+        setRenderedHTML(hiddenRef.current.innerHTML);
+      })
+      .catch(err => console.error('MathJax typeset error:', err));
+  }, [fullLatex, isReady, typesetPromise]);
 
   return (
-    <div 
-      className={`equation-row ${isCopied ? 'equation-copied' : ''}`}
-      onClick={copyEquation}
-    >
-      <div className="equation-lhs" dangerouslySetInnerHTML={{ __html: `\\(${equation.lhs} =\\)` }}></div>
-      <div className="equation-rhs" dangerouslySetInnerHTML={{ __html: `\\(${equation.rhs}\\)` }}></div>
-      <div className="equation-x-value" dangerouslySetInnerHTML={{ __html: `\\(x = ${xValLatex}\\)` }}></div>
-    </div>
+    <>
+      <div
+        className={`equation-row ${isCopied ? 'equation-copied' : ''}`}
+        onClick={copyEquation}
+        dangerouslySetInnerHTML={{ __html: renderedHTML }}
+      />
+      <div ref={hiddenRef} className="offscreen" />
+    </>
   );
-};
-
-export default EquationRow;
+}

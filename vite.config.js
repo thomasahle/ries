@@ -10,9 +10,4 @@ export default defineConfig({
   build: {
     outDir: 'dist',
   },
-  resolve: {
-    alias: {
-      '/forth_parser.js': '/forth_parser.js'
-    }
-  }
 });

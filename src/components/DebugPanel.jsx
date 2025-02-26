@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRIESCalculation } from '../hooks/useRIESCalculation';
 import './DebugPanel.css';
 
-const DebugPanel = ({ targetValue }) => {
+const DebugPanel = ({ targetValue, onRandomValue }) => {
   const [visible, setVisible] = useState(false);
   const { rawOutput } = useRIESCalculation(targetValue);
   
@@ -13,8 +13,8 @@ const DebugPanel = ({ targetValue }) => {
     const url = new URL(window.location);
     url.searchParams.set("T", randomValue);
     window.history.pushState({ T: randomValue }, "", url);
-    // Force page reload to ensure the calculation runs with the new value
-    window.location.reload();
+    // Update the App's inputValue through the onRandomValue callback
+    onRandomValue(randomValue);
   };
   
   // Update UI immediately when rawOutput changes
@@ -45,18 +45,8 @@ const DebugPanel = ({ targetValue }) => {
       
       {visible && (
         <>
-          <h3>Current Calculation Output:</h3>
           <pre className="debug-output">
             {localOutput || rawOutput || 'No output captured yet. Enter a value to calculate.'}
-          </pre>
-          
-          <h3>WASM Status:</h3>
-          <pre className="debug-output">
-            RIES_MODULE_LOADED: {window.RIES_MODULE_LOADED ? 'true' : 'false'}<br/>
-            createRIESModule exists: {typeof window.createRIESModule === 'function' ? 'true' : 'false'}<br/>
-            riesModuleInstance available: {window.riesModuleInstance ? 'true' : 'false'}<br/>
-            Target Value: {targetValue || 'none'}<br/>
-            lastRIESOutput length: {window.lastRIESOutput?.length || 0} chars<br/>
           </pre>
         </>
       )}
