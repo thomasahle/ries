@@ -92,14 +92,14 @@ const tests = [
   {
     a: "3.14159265359", 
     b: "3.1415926536 \\cdot 10^{0}",
-    expected: "3.1415926536 \\cdot 10^{0}" 
+    expected: "3.141592653\\textcolor{lightgray}{6}" 
   },
   
   // Extreme precision with slight difference
   {
-    a: "2.718281828459045235360287471", 
-    b: "2.718281828459045235360287472 \\cdot 10^{0}",
-    expected: "2.71828182845904523536028747\\textcolor{lightgray}{2} \\cdot 10^{0}" 
+    a:        "2.718281828459045235360287471", 
+    b:        "2.718281828459045235360287472 \\cdot 10^{0}",
+    expected: "2.71828182845904523536028747\\textcolor{lightgray}{2}" 
   },
   
   // Very small number with trailing differences
@@ -132,9 +132,9 @@ const tests = [
   
   // Scientific notation comparing to similar but different value
   {
-    a: "299792458", // Speed of light
-    b: "2.99792460 \\cdot 10^{8}", // Slightly off
-    expected: "2.9979245\\textcolor{lightgray}{60} \\cdot 10^{8}" 
+    a:         "299792458", // Speed of light
+    b:        "2.99792460 \\cdot 10^{8}", // Slightly off
+    expected: "2.997924\\textcolor{lightgray}{60} \\cdot 10^{8}" 
   }
 ];
 
