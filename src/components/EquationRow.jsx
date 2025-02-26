@@ -9,13 +9,13 @@ export default function EquationRow({ equation, targetValue, decimals }) {
   const [renderedHTML, setRenderedHTML] = useState('');
   const [isCopied, setIsCopied] = useState(false);
 
-  // Compute x-value based on the frozen targetValue.
+  // Compute x-value based on the target value.
   const offsetVal = parseFloat((equation.offset || "").replace(/\s+/g, "")) || 0;
   const Tnum = parseFloat(targetValue);
-  const xVal = (!isNaN(Tnum)) ? (Tnum + offsetVal).toFixed(decimals) : targetValue;
+  const xVal = !isNaN(Tnum) ? (Tnum + offsetVal).toFixed(decimals) : targetValue;
   const xValLatex = highlightDifference(targetValue, xVal);
 
-  // Build LaTeX for each part.
+  // Build LaTeX strings for each part.
   const lhsLatex = `\\(${equation.lhs} =\\)`;
   const rhsLatex = `\\(${equation.rhs}\\)`;
   const xLatex   = `\\(x = ${xValLatex}\\)`;
@@ -31,12 +31,12 @@ export default function EquationRow({ equation, targetValue, decimals }) {
     navigator.clipboard.writeText(latexEquation)
       .then(() => {
         setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 800);
+        setTimeout(() => setIsCopied(false), 1500);
       })
       .catch(err => console.error('Failed to copy equation to clipboard', err));
   };
 
-  // Pre-render offscreen: render raw LaTeX into a hidden container, typeset it, then update renderedHTML.
+  // Pre-render offscreen: insert raw LaTeX, typeset with MathJax, then store final HTML.
   useEffect(() => {
     if (!isReady || !hiddenRef.current) return;
     hiddenRef.current.innerHTML = fullLatex;
@@ -48,13 +48,16 @@ export default function EquationRow({ equation, targetValue, decimals }) {
   }, [fullLatex, isReady, typesetPromise]);
 
   return (
-    <>
+    <div className="equation-row-wrapper">
       <div
-        className={`equation-row ${isCopied ? 'equation-copied' : ''}`}
+        className="equation-row"
         onClick={copyEquation}
         dangerouslySetInnerHTML={{ __html: renderedHTML }}
       />
+      {isCopied && (
+        <div className="copy-message-overlay">Copied to clipboard!</div>
+      )}
       <div ref={hiddenRef} className="offscreen" />
-    </>
+    </div>
   );
 }

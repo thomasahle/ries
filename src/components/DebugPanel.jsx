@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useRIESCalculation } from '../hooks/useRIESCalculation';
+import React, { useState } from 'react';
 import './DebugPanel.css';
 
-const DebugPanel = ({ targetValue, onRandomValue }) => {
+const DebugPanel = ({ targetValue, rawOutput, onRandomValue }) => {
   const [visible, setVisible] = useState(false);
-  const { rawOutput } = useRIESCalculation(targetValue);
   
   // Generate a random number between 0 and 10
   const generateRandomValue = () => {
@@ -16,14 +14,6 @@ const DebugPanel = ({ targetValue, onRandomValue }) => {
     // Update the App's inputValue through the onRandomValue callback
     onRandomValue(randomValue);
   };
-  
-  // Update UI immediately when rawOutput changes
-  const [localOutput, setLocalOutput] = useState('');
-  useEffect(() => {
-    if (rawOutput) {
-      setLocalOutput(rawOutput);
-    }
-  }, [rawOutput]);
   
   return (
     <div className="debug-section">
@@ -46,7 +36,7 @@ const DebugPanel = ({ targetValue, onRandomValue }) => {
       {visible && (
         <>
           <pre className="debug-output">
-            {localOutput || rawOutput || 'No output captured yet. Enter a value to calculate.'}
+            {rawOutput || 'No output captured yet. Enter a value to calculate.'}
           </pre>
         </>
       )}

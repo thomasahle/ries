@@ -196,9 +196,12 @@ function parsePostfix(tokens) {
       const left = stack.pop();
       
       // Set requiresBrackets flag for operations that need parentheses when exponentiated
-      const needsBrackets = token === "+" || token === "-" || 
-                           token === "/" || token === "root" ||
-                           token === "^" || token === "**";
+      // Most operations need brackets when exponentiated, except for atan2 which 
+      // has its own parentheses like functions
+      const needsBrackets = 
+          token === "+" || token === "-" || 
+          token === "/" || token === "root" ||
+          token === "^" || token === "**";
       
       stack.push(new Node("op", token, [left, right], needsBrackets));
       continue;
@@ -306,8 +309,11 @@ function toLatex(node, parentPrec = 0, inFunc = false) {
     
     let expr = opInfo.op(left, right);
     
-    // Add parentheses only when necessary for operator precedence
-    if (!inFunc && prec < parentPrec) {
+    // Add parentheses based on the same criteria we use for exponentiation
+    // This unifies our parenthesis logic
+    const needsParentheses = !inFunc && prec < parentPrec && node.requiresBracketsForExponentiation;
+    
+    if (needsParentheses) {
       expr = `(${expr})`;
     }
     

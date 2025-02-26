@@ -7,33 +7,32 @@ importScripts('/ries.js');
 let riesModuleInstance = null;
 let capturedOutput = "";
 
+// Initialize the RIES module once and reuse it
 async function initRiesModule() {
   if (riesModuleInstance) return riesModuleInstance;
+  
   riesModuleInstance = await createRIESModule({
-    locateFile: (path, prefix) => {
-      // When the WASM file is requested, force the correct URL
-      if (path.endsWith('.wasm')) {
-        return '/ries.wasm';
-      }
-      return prefix + path;
-    },
+    locateFile: (path) => path.endsWith('.wasm') ? '/ries.wasm' : path,
     print: (text) => { capturedOutput += text + "\n"; },
     printErr: (text) => console.error("RIES error:", text)
   });
+  
   return riesModuleInstance;
 }
 
 onmessage = async (e) => {
   const { id, targetValue } = e.data;
   try {
+    // Get or initialize the module
     const moduleInstance = await initRiesModule();
-    capturedOutput = "";
-    const originalPrint = moduleInstance.print;
-    moduleInstance.print = (text) => { capturedOutput += text + "\n"; };
-
-    moduleInstance.callMain(["-F3", targetValue]);
-    moduleInstance.print = originalPrint;
     
+    // Reset output capture
+    capturedOutput = "";
+    
+    // Run RIES with the target value
+    moduleInstance.callMain(["-F3", targetValue]);
+    
+    // Send the captured output back to the main thread
     postMessage({ id, result: { rawOutput: capturedOutput } });
   } catch (error) {
     postMessage({ id, error: error.message });

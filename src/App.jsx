@@ -4,7 +4,14 @@ import InputForm from './components/InputForm';
 import EquationDisplay from './components/EquationDisplay';
 import DebugPanel from './components/DebugPanel';
 import { MathJaxProvider } from './utils/MathJaxContext';
+import { useRIESCalculation } from './hooks/useRIESCalculation';
 import './App.css';
+
+// DebugPanelWrapper component to handle fetching the data inside the QueryClientProvider
+const DebugPanelWrapper = ({ targetValue, onRandomValue }) => {
+  const { rawOutput } = useRIESCalculation(targetValue);
+  return <DebugPanel targetValue={targetValue} rawOutput={rawOutput} onRandomValue={onRandomValue} />;
+};
 
 // Create a client for React Query
 const queryClient = new QueryClient({
@@ -19,7 +26,6 @@ const queryClient = new QueryClient({
 function App() {
   const [inputValue, setInputValue] = useState('');
   
-
   // Read URL parameters on initial load
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -61,7 +67,7 @@ function App() {
           <p>Enter a numerical value to find matching equations:</p>
           <InputForm value={inputValue} onChange={handleInputChange} />
           <EquationDisplay targetValue={inputValue} />
-          {inputValue && <DebugPanel targetValue={inputValue} onRandomValue={handleInputChange} />}
+          {inputValue && <DebugPanelWrapper targetValue={inputValue} onRandomValue={handleInputChange} />}
         </div>
       </MathJaxProvider>
     </QueryClientProvider>

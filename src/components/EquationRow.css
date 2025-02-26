@@ -8,14 +8,36 @@
   width: 100%;
   padding: 12px;
   border-radius: 4px;
+  transition: box-shadow 0.1s ease;
 }
 
 .equation-row:hover {
-  outline: 1px solid rgba(255, 165, 0, 0.6);
+  box-shadow: 0 0 0 1px rgba(255, 165, 0, 0.6);
 }
 
-.equation-copied {
-  outline: 2px solid rgba(255, 165, 0, 0.7);
+.equation-row:active {
+  box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.9);
+}
+
+/* Floating copy message overlay */
+.copy-message-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-150%, 100%);
+  background: rgba(255, 255, 255);
+  color: rgb(26, 26, 26);
+  padding: 4px 8px;
+  border-radius: 4px;
+  pointer-events: none;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  animation: fadeOut 5s forwards ease-in;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 /* Equation parts */
@@ -32,4 +54,18 @@
 .equation-x-value {
   text-align: left;
   padding-left: 20px;
+}
+
+/* Offscreen container for pre-typesetting */
+.offscreen {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  width: 600px; /* Adjust to match your visible container's width */
+}
+
+/* Wrapper for the row to allow the overlay to float above */
+.equation-row-wrapper {
+  position: relative;
+  margin-bottom: 8px;
 }

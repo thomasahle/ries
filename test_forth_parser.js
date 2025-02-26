@@ -148,7 +148,7 @@ const tests = [
    {input: "x neg 1 + pi logN", expected: "\\log_{\\pi}(-x + 1)"},
    {input: "pi recip exp dup* recip", expected: "\\frac{1}{(e^{\\frac{1}{\\pi}})^{2}}"},
    {input: "8 dup* pi **", expected: "(8^{2})^{\\pi}"},
-   {input: "8 \\pi atan2 dup*", expected: "\\operatorname{atan_2}(8,\\pi)^{2}"},
+   {input: "8 pi atan2 dup*", expected: "\\operatorname{atan_2}(8,\\pi)^{2}"},
 ];
 
 let passCount = 0;
