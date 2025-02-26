@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node test_forth_parser.js",
+    "test": "node tests/forth_parser.test.js",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },

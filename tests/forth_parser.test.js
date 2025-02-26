@@ -1,5 +1,5 @@
-// test_forth_parser.js
-import { convertForthToLatex } from "./src/utils/forthParser.js";
+// forth_parser.test.js
+import { convertForthToLatex } from "../src/utils/forthParser.js";
 
 const tests = [
   // "phi" → just "phi"
