@@ -1,7 +1,19 @@
 // src/workers/ries.worker.js
 
+// Get the base URL from the worker's location
+const getBasePath = () => {
+  // For GitHub Pages deployment at /ries/
+  if (self.location.pathname.includes('/ries/')) {
+    return '/ries/';
+  }
+  // Local development
+  return '/';
+};
+
+const basePath = getBasePath();
+
 // Load the RIES initializer (createRIESModule) into the worker.
-importScripts('/ries.js');
+importScripts(`${basePath}ries.js`);
 
 // Cache the RIES module instance so it isn't reinitialized on every call.
 let riesModuleInstance = null;
@@ -12,7 +24,7 @@ async function initRiesModule() {
   if (riesModuleInstance) return riesModuleInstance;
   
   riesModuleInstance = await createRIESModule({
-    locateFile: (path) => path.endsWith('.wasm') ? '/ries.wasm' : path,
+    locateFile: (path) => path.endsWith('.wasm') ? `${basePath}ries.wasm` : path,
     print: (text) => { capturedOutput += text + "\n"; },
     printErr: (text) => console.error("RIES error:", text)
   });
