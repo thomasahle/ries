@@ -149,6 +149,7 @@ const tests = [
    {input: "pi recip exp dup* recip", expected: "\\frac{1}{(e^{\\frac{1}{\\pi}})^{2}}"},
    {input: "8 dup* pi **", expected: "(8^{2})^{\\pi}"},
    {input: "8 pi atan2 dup*", expected: "\\operatorname{atan_2}(8,\\pi)^{2}"},
+   {input: "phi 8 dup* * dup*", expected: "(\\phi 8^{2})^{2}"},
 ];
 
 let passCount = 0;

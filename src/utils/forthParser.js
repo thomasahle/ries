@@ -201,7 +201,8 @@ function parsePostfix(tokens) {
       const needsBrackets = 
           token === "+" || token === "-" || 
           token === "/" || token === "root" ||
-          token === "^" || token === "**";
+          token === "^" || token === "**" ||
+          token === "*";  // Add multiplication to the list of operations needing brackets
       
       stack.push(new Node("op", token, [left, right], needsBrackets));
       continue;
