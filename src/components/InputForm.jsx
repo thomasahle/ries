@@ -1,4 +1,5 @@
 import React from 'react';
+import './InputForm.css';
 
 const InputForm = ({ value, onChange }) => {
   // Run calculation immediately on input change

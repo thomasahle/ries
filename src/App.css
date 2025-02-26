@@ -1,22 +1,3 @@
-/* Input form styles */
-.input-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.input-row input[type="number"] {
-  flex: 1;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: larger;
-  text-align: center;
-}
-
-/* Global styles */
 body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   background-color: #f9f9f9;
@@ -82,3 +63,16 @@ footer a {
 footer a:hover {
   text-decoration: underline;
 }
+
+@media only screen and (max-width: 600px) {
+  .container {
+    width: 100%;
+  }
+  body {
+    padding: 0;
+  }
+  h1 {
+    font-size: 6.6vw;
+  }
+}
+
