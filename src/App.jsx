@@ -26,6 +26,19 @@ const queryClient = new QueryClient({
 function App() {
   const [inputValue, setInputValue] = useState('');
   
+  // Constants for random selection
+  const FAMOUS_CONSTANTS = [
+    '3.141592', // π
+    '2.718281', // e
+    '1.618033'  // φ (golden ratio)
+  ];
+
+  // Pick a random constant from the list
+  const getRandomConstant = () => {
+    const randomIndex = Math.floor(Math.random() * FAMOUS_CONSTANTS.length);
+    return FAMOUS_CONSTANTS[randomIndex];
+  };
+
   // Read URL parameters on initial load
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -33,6 +46,15 @@ function App() {
     if (Tparam) {
       // Set value from URL and calculations will run automatically
       setInputValue(Tparam);
+    } else {
+      // No parameter provided, pick a random constant
+      const randomValue = getRandomConstant();
+      setInputValue(randomValue);
+      
+      // Update URL to reflect the random value
+      const url = new URL(window.location);
+      url.searchParams.set("T", randomValue);
+      window.history.pushState({ T: randomValue }, "", url);
     }
   }, []);
   
