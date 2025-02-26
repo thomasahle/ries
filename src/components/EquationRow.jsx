@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useMathJax } from '../utils/MathJaxContext';
-import { highlightDifference } from '../utils/formatting';
+import { highlightDifference, formatNumberForLatex } from '../utils/formatting';
 import './EquationRow.css';
 
 export default function EquationRow({ equation, targetValue, decimals }) {
@@ -12,8 +12,28 @@ export default function EquationRow({ equation, targetValue, decimals }) {
   // Compute x-value based on the target value.
   const offsetVal = parseFloat((equation.offset || "").replace(/\s+/g, "")) || 0;
   const Tnum = parseFloat(targetValue);
-  const xVal = !isNaN(Tnum) ? (Tnum + offsetVal).toFixed(decimals) : targetValue;
-  const xValLatex = highlightDifference(targetValue, xVal);
+  
+  // Get the raw x value
+  let xVal = !isNaN(Tnum) ? (Tnum + offsetVal) : targetValue;
+  
+  // Format the value depending on its magnitude
+  let formattedXVal;
+  if (typeof xVal === 'number') {
+    // Check if it's a very large or small number that would be shown in scientific notation
+    const absXVal = Math.abs(xVal);
+    if (absXVal > 0 && (absXVal >= 1e10 || absXVal < 1e-4)) {
+      // For scientific notation, use exponential format and convert to LaTeX
+      formattedXVal = formatNumberForLatex(xVal.toExponential(decimals));
+    } else {
+      // For regular numbers, use fixed precision
+      formattedXVal = xVal.toFixed(decimals);
+    }
+  } else {
+    formattedXVal = String(xVal);
+  }
+  
+  // Add highlighting for differences
+  const xValLatex = highlightDifference(String(targetValue), formattedXVal);
 
   // Build LaTeX strings for each part.
   const lhsLatex = `\\(${equation.lhs} =\\)`;

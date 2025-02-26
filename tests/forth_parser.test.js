@@ -150,6 +150,36 @@ const tests = [
    {input: "8 dup* pi **", expected: "(8^{2})^{\\pi}"},
    {input: "8 pi atan2 dup*", expected: "\\operatorname{atan_2}(8,\\pi)^{2}"},
    {input: "phi 8 dup* * dup*", expected: "(\\phi 8^{2})^{2}"},
+   
+   // Complex nested expressions with multiple operations
+   {input: "e phi * pi / dup*", expected: "(\\frac{e \\phi}{\\pi})^{2}"},
+   
+   // Testing interaction between multiplication, addition and exponentiation
+   {input: "1 2 + 3 4 + * dup*", expected: "((1 + 2) (3 + 4))^{2}"},
+   
+   // Testing factorial-like sequence with nested dup*
+   {input: "2 dup* dup* dup*", expected: "((2^{2})^{2})^{2}"},
+   
+   // Complex expression with trigonometric functions and multiple operations
+   {input: "x sinpi y cospi * dup* z tanpi *", expected: "(\\sin\\bigl(\\pi x\\bigr) \\cos\\bigl(\\pi y\\bigr))^{2} \\tan\\bigl(\\pi z\\bigr)"},
+   
+   // Testing nested roots with multiplication and exponentiation
+   {input: "2 sqrt 3 sqrt * dup*", expected: "(\\sqrt{2} \\sqrt{3})^{2}"},
+   
+   // Testing logarithmic functions with multiplication and exponentiation
+   {input: "x ln y ln * dup*", expected: "(\\ln(x) \\ln(y))^{2}"},
+   
+   // Testing complex fractions with exponentiation
+   {input: "x y / dup* z /", expected: "\\frac{(\\frac{x}{y})^{2}}{z}"},
+   
+   // Triple nested dup* with constants
+   {input: "phi dup* dup* dup*", expected: "((\\phi^{2})^{2})^{2}"},
+   
+   // Mixed constants with multiple operations
+   {input: "pi e + phi * dup*", expected: "((\\pi + e) \\phi)^{2}"},
+   
+   // Combination of all main operations: +, -, *, /, ^
+   {input: "x y + z * a / b - dup*", expected: "(\\frac{(x + y) z}{a} - b)^{2}"},
 ];
 
 let passCount = 0;

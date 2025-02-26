@@ -128,11 +128,10 @@ class Node {
  */
 export function convertForthToLatex(input) {
   try {
-    // Preprocess: replace 'dup*' (square operation) with '2 **' for consistent handling
-    // This allows us to use the power operation instead of a special case
-    let processedInput = input.replace(/\bdup\*/g, '2 **');
+    // Preprocess: replace 'dup*' (square operation) with '2 **'
+    const processedInput = input.replace(/\bdup\*/g, '2 **');
     
-    // Split the input by spaces to get tokens
+    // Parse the input and convert to LaTeX
     const tokens = processedInput.split(/\s+/).filter(t => t.length > 0);
     const tree = parsePostfix(tokens);
     
@@ -151,65 +150,52 @@ export function convertForthToLatex(input) {
 function parsePostfix(tokens) {
   const stack = [];
   
-  for (let i = 0; i < tokens.length; i++) {
-    const token = tokens[i];
-    
+  for (const token of tokens) {
     // Numeric literals including fractions and negative numbers
     if (/^-?\d+(\.\d+)?$/.test(token) || /^-?\d+\/\d+$/.test(token)) {
       stack.push(new Node("num", token));
-      continue;
     }
-    
     // Variables (single letters)
-    if (/^[a-z]$/.test(token)) {
+    else if (/^[a-z]$/.test(token)) {
       stack.push(new Node("var", token));
-      continue;
     }
-    
     // Constants
-    if (token in CONSTANTS) {
+    else if (token in CONSTANTS) {
       stack.push(new Node("const", CONSTANTS[token]));
-      continue;
     }
-    
     // Unary operators (functions)
-    if (token in UNARY_OPS) {
+    else if (token in UNARY_OPS) {
       if (stack.length < 1) {
         throw new Error(`Insufficient operands for unary op ${token}`);
       }
       const arg = stack.pop();
       
-      // Most functions don't need brackets for exponentiation since they have
-      // their own delimiters, but 'exp' functions do need brackets when exponentiated
+      // Only 'exp' functions need brackets when exponentiated
       const requiresBrackets = token === 'exp';
       
       stack.push(new Node("func", token, [arg], requiresBrackets));
-      continue;
     }
-    
     // Binary operators
-    if (token in BINARY_OPS) {
+    else if (token in BINARY_OPS) {
       if (stack.length < 2) {
         throw new Error(`Insufficient operands for binary op ${token}`);
       }
       const right = stack.pop();
       const left = stack.pop();
       
-      // Set requiresBrackets flag for operations that need parentheses when exponentiated
-      // Most operations need brackets when exponentiated, except for atan2 which 
-      // has its own parentheses like functions
+      // Operations that need brackets when exponentiated
       const needsBrackets = 
           token === "+" || token === "-" || 
           token === "/" || token === "root" ||
           token === "^" || token === "**" ||
-          token === "*";  // Add multiplication to the list of operations needing brackets
+          token === "*";
       
       stack.push(new Node("op", token, [left, right], needsBrackets));
-      continue;
     }
-    
-    // If we got here, the token is not recognized
-    throw new Error(`Unknown token: ${token}`);
+    // Unrecognized token
+    else {
+      throw new Error(`Unknown token: ${token}`);
+    }
   }
   
   if (stack.length !== 1) {
@@ -265,8 +251,6 @@ function toLatex(node, parentPrec = 0, inFunc = false) {
       // Generate base LaTeX
       const baseNode = node.children[0];
       const base = toLatex(baseNode, prec, inFunc);
-      
-      // The need for parentheses is determined solely by the requiresBracketsForExponentiation flag
       const baseRequiresParentheses = baseNode.requiresBracketsForExponentiation;
       
       // Handle fraction exponents specially for formatting
@@ -274,11 +258,14 @@ function toLatex(node, parentPrec = 0, inFunc = false) {
         const numerator = toLatex(node.children[1].children[0], 0, true);
         const denominator = toLatex(node.children[1].children[1], 0, true);
         
-        // For simple fractions like 1/e, 1/phi, 1/pi, 1/2, etc. use the simpler notation
-        const fracExponent = (numerator === "1" || 
+        // Use simpler notation for basic fractions
+        const isSimpleFraction = numerator === "1" || 
             (numerator.length <= 2 && denominator.length <= 2) || 
-            (/^-?\d+$/.test(numerator) && /^-?\d+$/.test(denominator))) ?
-            `${numerator}/${denominator}` : `\\frac{${numerator}}{${denominator}}`;
+            (/^-?\d+$/.test(numerator) && /^-?\d+$/.test(denominator));
+            
+        const fracExponent = isSimpleFraction ? 
+            `${numerator}/${denominator}` : 
+            `\\frac{${numerator}}{${denominator}}`;
         
         return baseRequiresParentheses ? 
             `(${base})^{${fracExponent}}` : 
@@ -293,28 +280,47 @@ function toLatex(node, parentPrec = 0, inFunc = false) {
           `${base}^{${exponent}}`;
     }
     
-    // Special case: for any operation inside an exponentiation that would get double-parenthesized
-    // (This catches both the addition issue and potential issues with other operations)
-    if (node.requiresBracketsForExponentiation && parentPrec === 3) { // Exponentiation has precedence 3
+    // Special handling for multiplication to ensure proper parenthesization
+    if (node.value === "*") {
+      // Process left and right operands with proper precedence
+      const leftNode = node.children[0];
+      const rightNode = node.children[1];
       
-      // Generate the expression without parentheses - the parent exponentiation
-      // will add them based on our requiresBracketsForExponentiation flag
+      // For multiplication, we need parentheses only for + and - operations
+      const needsLeftParens = leftNode.type === "op" && (leftNode.value === "+" || leftNode.value === "-");
+      const needsRightParens = rightNode.type === "op" && (rightNode.value === "+" || rightNode.value === "-");
+      
+      // Get the raw expressions
+      const left = toLatex(leftNode, 0, inFunc);
+      const right = toLatex(rightNode, 0, inFunc);
+      
+      // Apply parentheses where needed
+      const formattedLeft = needsLeftParens ? `(${left})` : left;
+      const formattedRight = needsRightParens ? `(${right})` : right;
+      
+      // Check for numeric right operand to follow conventional notation (e.g., "2 x" instead of "x 2")
+      const isRightSimpleNumber = /^\d+$/.test(right) || /^e\^{\d+}$/.test(right);
+      
+      return isRightSimpleNumber ? 
+          `${right} ${formattedLeft}` : 
+          `${formattedLeft} ${formattedRight}`;
+    }
+    
+    // Special case for operations inside exponentiation to avoid double-parenthesization
+    if (node.requiresBracketsForExponentiation && parentPrec === 3) {
       const left = toLatex(node.children[0], prec, inFunc);
-      const right = toLatex(node.children[1], prec, inFunc);
+      const right = toLatex(node.children[1], 0, true);
       return opInfo.op(left, right);
     }
     
-    // Normal case for all other operations
+    // Normal case for all other binary operations
     const left = toLatex(node.children[0], prec, inFunc);
     const right = toLatex(node.children[1], prec, inFunc);
     
     let expr = opInfo.op(left, right);
     
-    // Add parentheses based on the same criteria we use for exponentiation
-    // This unifies our parenthesis logic
-    const needsParentheses = !inFunc && prec < parentPrec && node.requiresBracketsForExponentiation;
-    
-    if (needsParentheses) {
+    // Add parentheses if needed based on operator precedence
+    if (!inFunc && prec < parentPrec && node.requiresBracketsForExponentiation) {
       expr = `(${expr})`;
     }
     
