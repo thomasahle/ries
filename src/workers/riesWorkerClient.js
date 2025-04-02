@@ -99,7 +99,21 @@ function retryRequest(id, cb, delay = RETRY_DELAY, isCritical = false) {
     callbacks.set(id, {...cb, hasRetried: true});
     
     setTimeout(() => {
-      worker.postMessage({ id, targetValue: cb.targetValue, retry: true });
+      // Include original args if they exist when retrying 
+      worker.postMessage({ 
+        id, 
+        targetValue: cb.targetValue,
+        args: cb.options ? [
+          // Reconstruct args from options
+          ...(cb.options.neverUseSymbols ? [`-N${cb.options.neverUseSymbols}`] : []),
+          ...(cb.options.onlyOneSymbols ? [`-O${cb.options.onlyOneSymbols}`] : []),
+          ...(cb.options.onlyUseSymbols ? [`-S${cb.options.onlyUseSymbols}`] : []),
+          ...(cb.options.solutionType ? [`-${cb.options.solutionType}`] : []),
+          ...(cb.options.solveForX ? ['-s'] : []),
+          '-F3' // Always use default formatting
+        ] : ["-F3"],
+        retry: true 
+      });
     }, delay);
   } else {
     console.warn(`❌ Already retried request ${id}, giving up`);
@@ -325,10 +339,47 @@ export function restartRiesModule() {
 /**
  * Send a calculation request to the RIES worker
  * @param {string} targetValue - The value to find equations for
+ * @param {Object} options - Options to pass to RIES
  * @returns {Promise} - Promise that resolves with the calculation results
  */
-export function sendRiesRequest(targetValue) {
+export function sendRiesRequest(targetValue, options = {}) {
   initWorker();
+  
+  // Build RIES command arguments
+  const args = [];
+  
+  // Add arguments based on options
+  if (options) {
+    // Add never use symbols (-N)
+    if (options.neverUseSymbols) {
+      args.push(`-N${options.neverUseSymbols}`);
+    }
+    
+    // Add only use once symbols (-O)
+    if (options.onlyOneSymbols) {
+      args.push(`-O${options.onlyOneSymbols}`);
+    }
+    
+    // Add only use these symbols (-S)
+    if (options.onlyUseSymbols) {
+      args.push(`-S${options.onlyUseSymbols}`);
+    }
+    
+    // Add solution type constraint if specified
+    if (options.solutionType) {
+      args.push(`-${options.solutionType}`);
+    }
+    
+    // Add solve-for-x flag if enabled
+    if (options.solveForX) {
+      args.push('-s');
+    }
+  }
+  
+  // Always include the default formatting option
+  if (!args.some(arg => arg.startsWith('-F'))) {
+    args.push('-F3');
+  }
   
   return new Promise((resolve, reject) => {
     const id = msgId++;
@@ -336,8 +387,15 @@ export function sendRiesRequest(targetValue) {
       resolve, 
       reject,
       targetValue, // Store the target value so we can retry if needed
-      hasRetried: false // Track if we've already retried this request
+      hasRetried: false, // Track if we've already retried this request
+      options // Store options for potential retry
     });
-    worker.postMessage({ id, targetValue });
+    
+    // Pass both the target value and arguments to the worker
+    worker.postMessage({ 
+      id, 
+      targetValue,
+      args 
+    });
   });
 }

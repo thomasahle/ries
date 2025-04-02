@@ -1,0 +1,306 @@
+.ries-panel {
+  width: 100%;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
+  margin-top: 10px;
+}
+
+.options-section {
+  margin-bottom: 20px;
+}
+
+.options-section h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+}
+
+.options-row {
+  display: flex;
+  gap: 20px;
+}
+
+.options-row .options-section {
+  flex: 1;
+}
+
+/* Options section with controls */
+.options-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.select-option {
+  display: flex;
+  align-items: center;
+}
+
+.select-option label {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  gap: 8px;
+}
+
+.solution-type-select {
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  font-size: 14px;
+  margin-left: 8px;
+  width: 120px;
+}
+
+/* Debug Output Section */
+.debug-output-section {
+  margin-bottom: 20px;
+}
+
+/* Symbol Selection */
+.symbol-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.legend-container {
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #f8f8f8;
+  border-radius: 4px;
+  border: 1px solid #e8e8e8;
+}
+
+.legend-title {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: #333;
+}
+
+.legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+}
+
+.legend-dot.enabled {
+  background-color: #f8f8f8;
+}
+
+.legend-dot.never {
+  background-color: #ffcccc;
+}
+
+.legend-dot.once {
+  background-color: #ffffcc;
+}
+
+.legend-dot.only {
+  background-color: #ccffcc;
+}
+
+.keypad-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.keypad-row {
+  display: flex;
+  gap: 8px;
+}
+
+.key {
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  background-color: #f8f8f8;
+  cursor: pointer;
+  font-size: 16px;
+  color: #333;
+  transition: all 0.2s;
+}
+
+.key:hover:not(.empty-key) {
+  background-color: #eaeaea;
+}
+
+.key:active:not(.empty-key) {
+  transform: translateY(1px);
+}
+
+.empty-key {
+  border-color: transparent;
+  background-color: transparent;
+  cursor: default;
+}
+
+.number-key {
+  background-color: #ffffff;
+}
+
+.operator-key {
+  background-color: #f0f0f0;
+}
+
+.function-key {
+  background-color: #e8e8e8;
+}
+
+/* State styles */
+.key.never {
+  background-color: #ffcccc;
+  border-color: #ffaaaa;
+}
+
+.key.once {
+  background-color: #ffffcc;
+  border-color: #ffffaa;
+}
+
+.key.only {
+  background-color: #ccffcc;
+  border-color: #aaffaa;
+}
+
+.key-text {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.state-indicator {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: #666;
+  color: white;
+  font-size: 9px;
+  line-height: 14px;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Monospace text boxes (command and output) */
+.command-text,
+.debug-output {
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: monospace;
+  font-size: 12px;
+  margin-bottom: 15px;
+  cursor: default;
+}
+
+.debug-output {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Form inputs */
+.checkbox-option {
+  margin-bottom: 0;
+}
+
+.checkbox-option label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* Debug Panel Container */
+.debug-section {
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+.debug-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.debug-toggle {
+  background-color: #f8f8f8;
+  border: 1px solid #ddd;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.debug-toggle:hover {
+  background-color: #f0f0f0;
+}
+
+.debug-toggle.active {
+  background-color: #e8e8e8;
+  border-color: #ccc;
+}
+
+.debug-panel-content {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .options-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .debug-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .solution-type-wrapper {
+    margin-left: 0;
+    margin-top: 10px;
+  }
+}

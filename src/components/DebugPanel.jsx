@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import './DebugPanel.css';
+import RIESOptions, { SolutionTypeSelector } from './RIESOptions';
+import './RIESOptions.css';
 
-const DebugPanel = ({ targetValue, rawOutput, onRandomValue }) => {
-  const [visible, setVisible] = useState(false);
+const DebugPanel = ({ targetValue, rawOutput, onRandomValue, riesOptions, onRIESOptionChange }) => {
+  // Set RIES options tab as initially active
+  const [activePanel, setActivePanel] = useState('ries');
   
   // Generate a random number between 0 and 10
   const generateRandomValue = () => {
@@ -14,15 +16,24 @@ const DebugPanel = ({ targetValue, rawOutput, onRandomValue }) => {
     // Update the App's inputValue through the onRandomValue callback
     onRandomValue(randomValue);
   };
+
+  // Toggle panel visibility
+  const togglePanel = (panel) => {
+    if (activePanel === panel) {
+      setActivePanel(null);
+    } else {
+      setActivePanel(panel);
+    }
+  };
   
   return (
     <div className="debug-section">
       <div className="debug-controls">
         <button 
-          className={`debug-toggle ${visible ? 'active' : ''}`} 
-          onClick={() => setVisible(!visible)}
+          className={`debug-toggle ${activePanel === 'ries' ? 'active' : ''}`}
+          onClick={() => togglePanel('ries')}
         >
-          {visible ? 'Hide Debug Output' : 'Show Debug Output'}
+          {activePanel === 'ries' ? 'Hide RIES Options' : 'Show RIES Options'}
         </button>
         
         <button 
@@ -32,13 +43,14 @@ const DebugPanel = ({ targetValue, rawOutput, onRandomValue }) => {
           Random T
         </button>
       </div>
-      
-      {visible && (
-        <>
-          <pre className="debug-output">
-            {rawOutput || 'No output captured yet. Enter a value to calculate.'}
-          </pre>
-        </>
+
+      {activePanel === 'ries' && (
+        <RIESOptions 
+          isVisible={true}
+          onToggle={() => togglePanel('ries')}
+          onOptionsChange={onRIESOptionChange}
+          riesOptions={{...riesOptions, rawOutput, targetValue}}
+        />
       )}
     </div>
   );

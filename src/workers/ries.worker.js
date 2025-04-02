@@ -176,7 +176,7 @@ function isMemoryError(error) {
  * Handle messages from the main thread
  */
 onmessage = async (e) => {
-  const { id, targetValue, retry = false, command } = e.data;
+  const { id, targetValue, args = [], retry = false, command } = e.data;
   
   // Handle special commands
   if (command === 'restart') {
@@ -221,13 +221,17 @@ onmessage = async (e) => {
       };
     }
     
+    // Build command line arguments 
+    // Use provided args if available, or fall back to default formatting
+    const commandArgs = args.length > 0 ? [...args, targetValue] : ["-F3", targetValue];
+    
     // Track calculation start time
     const startTime = Date.now();
-    console.debug(`🧮 Starting RIES calculation for target value: ${targetValue}`);
+    console.debug(`🧮 Starting RIES calculation for target value: ${targetValue} with args: ${commandArgs.join(' ')}`);
     logMemoryStats('before calculation');
     
-    // Run RIES with the target value
-    moduleInstance.callMain(["-F3", targetValue]);
+    // Run RIES with the arguments and target value
+    moduleInstance.callMain(commandArgs);
     
     // Calculate elapsed time
     const elapsedTime = Date.now() - startTime;

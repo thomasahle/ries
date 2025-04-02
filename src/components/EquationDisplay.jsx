@@ -3,9 +3,17 @@ import { useRIESCalculation } from '../hooks/useRIESCalculation';
 import EquationRow from './EquationRow';
 import './EquationDisplay.css';
 
-export default function EquationDisplay({ targetValue }) {
-  // Destructure computedTarget from the hook so that the displayed equations stay in sync.
-  const { equations, isLoading, isFetching, isError, error, computedTarget } = useRIESCalculation(targetValue);
+export default function EquationDisplay({ targetValue, riesOptions, onRawOutputUpdate }) {
+  // Use the hook with options and callback for raw output
+  const { 
+    equations, 
+    rawOutput,
+    isLoading, 
+    isFetching, 
+    isError, 
+    error, 
+    computedTarget 
+  } = useRIESCalculation(targetValue, riesOptions, onRawOutputUpdate);
 
   // When input is empty, show a friendly message.
   if (!targetValue || targetValue.trim() === '') {
@@ -46,7 +54,7 @@ export default function EquationDisplay({ targetValue }) {
     return (
       <div className="equations-container">
         <div className="message-block">
-          <p>No equations found. Try a different value like π ≈ 3.14159</p>
+          <p>No equations found. Try a different value like π ≈ 3.14159 or adjust your RIES options.</p>
         </div>
       </div>
     );
@@ -54,6 +62,7 @@ export default function EquationDisplay({ targetValue }) {
 
   return (
     <div className="equations-container-wrapper" style={{ position: 'relative' }}>
+      
       {/* Apply the blurred class when a new request is pending */}
       <div className={`equations-container ${isFetching ? 'blurred' : ''}`}>
         {equations.map((equation, index) => (
