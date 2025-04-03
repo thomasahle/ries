@@ -3,8 +3,8 @@ import RIESOptions, { SolutionTypeSelector } from './RIESOptions';
 import './RIESOptions.css';
 
 const DebugPanel = ({ targetValue, rawOutput, onRandomValue, riesOptions, onRIESOptionChange }) => {
-  // Set RIES options tab as initially active
-  const [activePanel, setActivePanel] = useState('ries');
+  // RIES options tab not initially active
+  const [activePanel, setActivePanel] = useState(null);
   
   // Generate a random number between 0 and 10
   const generateRandomValue = () => {

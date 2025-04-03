@@ -27,6 +27,15 @@ function App() {
     
     if (tParam) {
       setInputValue(tParam);
+    } else {
+      // Generate a random value between 0 and 10 if no T value is provided
+      const randomValue = (Math.random() * 10).toFixed(6);
+      setInputValue(randomValue);
+      
+      // Update URL with the random value
+      const url = new URL(window.location);
+      url.searchParams.set('T', randomValue);
+      window.history.pushState({ T: randomValue }, '', url);
     }
   }, []);
 
