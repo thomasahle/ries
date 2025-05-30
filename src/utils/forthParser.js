@@ -170,8 +170,8 @@ function parsePostfix(tokens) {
       }
       const arg = stack.pop();
       
-      // Only 'exp' functions need brackets when exponentiated
-      const requiresBrackets = token === 'exp';
+      // For exponentiation, we need parentheses around exp() and negation
+      const requiresBrackets = token === 'exp' || token === 'neg';
       
       stack.push(new Node("func", token, [arg], requiresBrackets));
     }

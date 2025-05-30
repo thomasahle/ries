@@ -126,6 +126,10 @@ const tests = [
   
   // "x^2" - using dup* for squaring
   { input: "x dup*", expected: "x^{2}" },
+  // Squaring a negated value should parenthesize the negation
+  { input: "x neg dup*", expected: "(-x)^{2}" },
+  // More complex case from issue #2: squaring the negated reciprocal expression
+  { input: "3 recip 7 - recip neg dup* 3 *", expected: "3 (-\\frac{1}{\\frac{1}{3} - 7})^{2}" },
   
   // "-x/2 - 1" - using neg (negation)
   { input: "x 2 / neg 1 -", expected: "-\\frac{x}{2} - 1" },
