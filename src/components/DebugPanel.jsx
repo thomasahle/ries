@@ -33,12 +33,12 @@ const DebugPanel = ({ targetValue, rawOutput, onRandomValue, riesOptions, onRIES
           className={`debug-toggle ${activePanel === 'ries' ? 'active' : ''}`}
           onClick={() => togglePanel('ries')}
         >
-          {activePanel === 'ries' ? 'Hide RIES Options' : 'Show RIES Options'}
+          {activePanel === 'ries' ? 'Hide Options' : 'Show Options'}
         </button>
         {/* Solve-for-x toggle as button, matching debug-toggle style */}
         <button
           type="button"
-          className={`debug-toggle ${riesOptions.solveForX ? 'active' : ''}`}
+          className={`debug-toggle solve-toggle ${riesOptions.solveForX ? 'active' : ''}`}
           onClick={() => onRIESOptionChange({ solveForX: !riesOptions.solveForX })}
         >
           Solve for x

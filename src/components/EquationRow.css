@@ -71,6 +71,21 @@
 }
 
 /* Wrapper for the row to allow the overlay to float above */
+/* Wrapper for the row to allow the overlay to float above */
+/* Wrapper for row overlay */
 .equation-row-wrapper {
   position: relative;
+  width: 100%;
+}
+
+/* Solve-for-x mode: five-column grid with a combined lhs+rhs column and x-value column */
+.container:has(.solve-toggle.active) .equation-row {
+  display: grid;
+  grid-template-columns: 0fr 1fr 0fr;
+}
+
+@media only screen and (min-width: 600px) {
+  .container:has(.solve-toggle.active) .equation-row {
+     padding-inline:15%;
+  }
 }

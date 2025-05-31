@@ -96,6 +96,7 @@ function App() {
               targetValue={inputValue}
               riesOptions={riesOptions}
               onRawOutputUpdate={handleRawOutputUpdate}
+              solveForX={riesOptions.solveForX}
             />
             
             <DebugPanel 
