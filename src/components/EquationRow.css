@@ -6,6 +6,8 @@
   gap: 4px;
   cursor: pointer;
   width: 100%;
+  /* Allow the row to grow to fit its content, enabling horizontal scroll when needed */
+  min-width: max-content;
   padding: 12px;
   border-radius: 4px;
   transition: box-shadow 0.1s ease;
@@ -76,6 +78,10 @@
 .equation-row-wrapper {
   position: relative;
   width: 100%;
+  /* Enable horizontal scrolling when the equation content overflows */
+  overflow-x: auto;
+  /* Prevent vertical scrollbar */
+  overflow-y: hidden;
 }
 
 /* Solve-for-x mode: five-column grid with a combined lhs+rhs column and x-value column */

@@ -8,14 +8,14 @@ import './App.css';
 
 // List of possible header prompts; one will be selected at random per session
 const promptOptions = [
-  'Type any number to discover equations that equal it:',
-  'Input a value—we’ll hunt down equations that match:',
-  'Give us a number, and we’ll show its symbolic identities:',
-  'Enter a numeric input to see equivalent formulas:',
-  'Provide a value to uncover equations with the same result:',
-  'Feed in a number to find expressions that evaluate to it:',
-  'Drop a number here and explore its algebraic twins:',
-  'Key in a numerical value to view matching symbolic forms:'
+  'Type any number to discover equations:',
+  'Input a value—we’ll hunt down equations:',
+  'Give a number and show symbolic identities:',
+  'Enter a numeric input to see formulas:',
+  'Provide a value to uncover equations:',
+  'Feed in a number to find expressions:',
+  'Drop a number and explore its algebraic twins:',
+  'Key in a value to view matching symbolic forms:'
 ];
 
 function App() {
