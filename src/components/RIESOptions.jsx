@@ -303,21 +303,10 @@ const RIESOptions = ({ isVisible, onToggle, onOptionsChange, riesOptions }) => {
       </div>
       
       {/* Options - Controls for equation type and format */}
+      {/* Solution type selector only; 'solveForX' moved to debug controls */}
       <div className="options-section">
         <h3>Options</h3>
         <div className="options-wrapper">
-          <div className="checkbox-option">
-            <label>
-              <input
-                type="checkbox"
-                name="solveForX"
-                checked={options.solveForX}
-                onChange={handleOptionChange}
-              />
-              Try to solve for x
-            </label>
-          </div>
-          
           <div className="select-option">
             <label>
               Solution type:

@@ -21,7 +21,8 @@ const InputForm = ({ value, onChange, onRandom }) => {
           type="button"
           className="random-btn"
           onClick={onRandom}
-          aria-label="Random value"
+          title="Surprise me!"
+          aria-label="Surprise me!"
         >
           🎲
         </button>

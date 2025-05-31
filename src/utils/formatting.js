@@ -271,20 +271,44 @@ export function highlightDifference(strA, strB) {
     return strB; // Default fallback for scientific notation
   }
   
+  // Handle implicit zeros for integer, decimal, or trailing-dot targets:
+  // Treat T=3 or T="3." as extended with "0" after decimal point.
+  const intDecDotRe = /^-?\d+(?:\.\d*)?$/;
+  if (intDecDotRe.test(strA)) {
+    const aNorm = strA.endsWith('.') ? strA + '0' : strA;
+    if (strB.startsWith(aNorm)) {
+      let idx = aNorm.length;
+      // If next char is decimal point, consume it and all following zeros
+      if (strB[idx] === '.') {
+        idx++;
+        while (idx < strB.length && strB[idx] === '0') {
+          idx++;
+        }
+      } else {
+        // Consume leading zeros after integer match
+        while (idx < strB.length && strB[idx] === '0') {
+          idx++;
+        }
+      }
+      // If we've consumed entire string, it's an exact match
+      if (idx >= strB.length) {
+        return strB;
+      }
+      // Highlight the remainder starting at first non-zero
+      return `${strB.slice(0, idx)}\\textcolor{lightgray}{${strB.slice(idx)}}`;
+    }
+  }
   // Standard string comparison for regular numbers
   let i = 0;
   const len = Math.min(strA.length, strB.length);
   while (i < len && strA[i] === strB[i]) i++;
-  
   // No difference or complete match
   if (i === strB.length) {
     return strB;
   }
-  
   // Apply highlighting to the differing part
   const prefix = strB.slice(0, i);
   const remainder = strB.slice(i);
-  
   return `${prefix}\\textcolor{lightgray}{${remainder}}`;
 }
 
