@@ -6,9 +6,25 @@ import DebugPanel from './components/DebugPanel';
 import { MathJaxProvider } from './utils/MathJaxContext';
 import './App.css';
 
+// List of possible header prompts; one will be selected at random per session
+const promptOptions = [
+  'Type any number to discover equations that equal it:',
+  'Input a value—we’ll hunt down equations that match:',
+  'Give us a number, and we’ll show its symbolic identities:',
+  'Enter a numeric input to see equivalent formulas:',
+  'Provide a value to uncover equations with the same result:',
+  'Feed in a number to find expressions that evaluate to it:',
+  'Drop a number here and explore its algebraic twins:',
+  'Key in a numerical value to view matching symbolic forms:'
+];
+
 function App() {
   // Create a client
   const queryClient = new QueryClient();
+  // Random header prompt selected once per session
+  const [promptText] = useState(() =>
+    promptOptions[Math.floor(Math.random() * promptOptions.length)]
+  );
   
   const [inputValue, setInputValue] = useState('');
   const [rawOutput, setRawOutput] = useState('');
@@ -82,7 +98,7 @@ function App() {
         <div className="container">
           <header>
             <h1>Inverse Symbolic Calculator</h1>
-            <p>Enter a numerical value to find matching equations:</p>
+            <p>{promptText}</p>
           </header>
           
           <main>
