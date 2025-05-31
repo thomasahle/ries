@@ -1,5 +1,5 @@
 // highlightDifference tests
-import { highlightDifference, formatNumberForLatex } from '../../src/utils/formatting.js';
+import { highlightDifference, formatNumberForLatex } from '../src/utils/formatting.js';
 
 const tests = [
   // Basic decimal comparison
@@ -135,6 +135,21 @@ const tests = [
     a:         "299792458", // Speed of light
     b:        "2.99792460 \\cdot 10^{8}", // Slightly off
     expected: "2.997924\\textcolor{lightgray}{60} \\cdot 10^{8}" 
+  },
+  {
+    a:         "3",
+    b:        "3.0000000",
+    expected: "3.0000000"
+  },
+  {
+    a:        "3.1",
+    b:        "3.1004410",
+    expected: "3.100\\textcolor{lightgray}{4410}"
+  },
+  {
+    a:        "3.",
+    b:        "3.0123",
+    expected: "3.0\\textcolor{lightgray}{123}"
   }
 ];
 
