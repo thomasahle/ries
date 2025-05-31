@@ -1,4 +1,6 @@
 // highlightDifference tests
+import test from 'node:test';
+import assert from 'node:assert/strict';
 import { highlightDifference, formatNumberForLatex } from '../src/utils/formatting.js';
 
 const tests = [
@@ -153,23 +155,13 @@ const tests = [
   }
 ];
 
-// Run the tests
-let passCount = 0;
-let failCount = 0;
-
-console.log("Running highlightDifference tests...\n");
-
-tests.forEach((test, index) => {
-  const actual = highlightDifference(test.a, test.b);
-  if (actual === test.expected) {
-    console.log(`✅ Test #${index + 1} PASSED: "${test.a}" vs "${test.b}" => "${actual}"`);
-    passCount++;
-  } else {
-    console.error(`❌ Test #${index + 1} FAILED: "${test.a}" vs "${test.b}"`);
-    console.error(`   Expected: "${test.expected}"`);
-    console.error(`   Actual:   "${actual}"`);
-    failCount++;
-  }
-});
-
-console.log(`\nTests complete. Passed=${passCount}, Failed=${failCount}`);
+// Run tests using Node's built-in test runner
+for (const { a, b, expected } of tests) {
+  test(`highlightDifference("${a}", "${b}")`, () => {
+    assert.strictEqual(
+      highlightDifference(a, b),
+      expected,
+      `for inputs a="${a}" and b="${b}"`
+    );
+  });
+}

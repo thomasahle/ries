@@ -1,5 +1,7 @@
 // forth_parser.test.js
-import { convertForthToLatex } from "../src/utils/forthParser.js";
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { convertForthToLatex } from '../src/utils/forthParser.js';
 
 const tests = [
   // "phi" → just "phi"
@@ -188,23 +190,13 @@ const tests = [
    {input: "3 4 *", expected: "3 \\cdot 4"},
 ];
 
-let passCount = 0;
-let failCount = 0;
-
-tests.forEach(({ input, expected }) => {
-  try {
-    const actual = convertForthToLatex(input);
-    if (actual === expected) {
-      console.log(`PASS: "${input}" => "${actual}"`);
-      passCount++;
-    } else {
-      console.error(`FAIL: "${input}" => got "${actual}", expected "${expected}"`);
-      failCount++;
-    }
-  } catch (err) {
-    console.error(`ERROR processing "${input}": ${err.message}`);
-    failCount++;
-  }
-});
-
-console.log(`\nTests complete. Passed=${passCount}, Failed=${failCount}`);
+// Run tests using Node's built-in test runner
+for (const { input, expected } of tests) {
+  test(`convertForthToLatex("${input}")`, () => {
+    assert.strictEqual(
+      convertForthToLatex(input),
+      expected,
+      `for input="${input}"`
+    );
+  });
+}

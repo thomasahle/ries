@@ -127,19 +127,13 @@ class Node {
  * @return {string} Converted LaTeX expression
  */
 export function convertForthToLatex(input) {
-  try {
-    // Preprocess: replace 'dup*' (square operation) with '2 **'
-    const processedInput = input.replace(/\bdup\*/g, '2 **');
-    
-    // Parse the input and convert to LaTeX
-    const tokens = processedInput.split(/\s+/).filter(t => t.length > 0);
-    const tree = parsePostfix(tokens);
-    
-    return toLatex(tree);
-  } catch (error) {
-    console.error(`Error parsing ${input}: ${error.message}`);
-    return "\\text{Error: " + error.message + "}";
-  }
+  // Preprocess: replace 'dup*' (square operation) with '2 **'
+  const processedInput = input.replace(/\bdup\*/g, '2 **');
+
+  // Parse the input and convert to LaTeX
+  const tokens = processedInput.split(/\s+/).filter(t => t.length > 0);
+  const tree = parsePostfix(tokens);
+  return toLatex(tree);
 }
 
 /**

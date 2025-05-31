@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node tests/run-all.js",
+    "test": "node --test",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
