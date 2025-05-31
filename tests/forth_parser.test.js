@@ -184,6 +184,8 @@ const tests = [
    
    // Combination of all main operations: +, -, *, /, ^
    {input: "x y + z * a / b - dup*", expected: "(\\frac{(x + y) z}{a} - b)^{2}"},
+
+   {input: "3 4 *", expected: "3 \\cdot 4"},
 ];
 
 let passCount = 0;

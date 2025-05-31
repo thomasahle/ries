@@ -281,9 +281,16 @@ function toLatex(node, parentPrec = 0, inFunc = false) {
     
     // Special handling for multiplication to ensure proper parenthesization
     if (node.value === "*") {
-      // Process left and right operands with proper precedence
+      // Process left and right operands
       const leftNode = node.children[0];
       const rightNode = node.children[1];
+      
+      // If both operands are numeric literals, render explicit dot multiplication
+      if (leftNode.type === "num" && rightNode.type === "num") {
+        const left = toLatex(leftNode, 0, inFunc);
+        const right = toLatex(rightNode, 0, inFunc);
+        return `${left} \\cdot ${right}`;
+      }
       
       // For multiplication, we need parentheses only for + and - operations
       const needsLeftParens = leftNode.type === "op" && (leftNode.value === "+" || leftNode.value === "-");
