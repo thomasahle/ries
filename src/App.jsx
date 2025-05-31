@@ -39,10 +39,9 @@ function App() {
     }
   }, []);
 
-  // Handle input change from the form
+  // Handle input change from the form or random generator
   const handleInputChange = (value) => {
     setInputValue(value);
-    
     // Update URL with the new value
     const url = new URL(window.location);
     if (value) {
@@ -51,6 +50,12 @@ function App() {
       url.searchParams.delete('T');
     }
     window.history.pushState({ T: value }, '', url);
+  };
+  
+  // Generate a new random value and feed it through the same handler
+  const handleRandom = () => {
+    const randomValue = (Math.random() * 10).toFixed(6);
+    handleInputChange(randomValue);
   };
 
   // Handle RIES options changes
@@ -83,7 +88,8 @@ function App() {
           <main>
             <InputForm 
               value={inputValue} 
-              onChange={handleInputChange} 
+              onChange={handleInputChange}
+              onRandom={handleRandom}
             />
             
             <EquationDisplay 

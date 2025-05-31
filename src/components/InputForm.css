@@ -1,17 +1,35 @@
 /* Input form styles */
+/* Input wrapper: position to allow absolute placement of the dice button */
+/* Input wrapper: flex layout and relative for icon positioning */
 .input-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  position: relative;
   margin-bottom: 10px;
 }
 
+/* The input stretches to fill remaining width next to the button */
 .input-row input[type="number"] {
-  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
   padding: 10px;
-  font-size: 16px;
+  padding-left: 2.5em;
+  padding-right: 2.5em; /* space for the dice button */
+  font-size: larger;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: larger;
   text-align: center;
+}
+
+/* Dice button inside the input field */
+.random-btn {
+  position: absolute;
+  right: 0.5em;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2em;
+  padding: 0;
+  line-height: 1;
+  z-index: 1;
 }

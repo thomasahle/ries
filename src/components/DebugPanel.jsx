@@ -36,12 +36,6 @@ const DebugPanel = ({ targetValue, rawOutput, onRandomValue, riesOptions, onRIES
           {activePanel === 'ries' ? 'Hide RIES Options' : 'Show RIES Options'}
         </button>
         
-        <button 
-          className="debug-toggle" 
-          onClick={generateRandomValue}
-        >
-          Random T
-        </button>
       </div>
 
       {activePanel === 'ries' && (

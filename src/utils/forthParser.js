@@ -147,12 +147,15 @@ export function convertForthToLatex(input) {
  * @param {string[]} tokens - Array of tokens in postfix notation
  * @return {Node} The root node of the expression tree
  */
+// Precompile numeric literal regexes for decimals and simple fractions
+const DECIMAL_RE = /^-?(?:\d+(?:\.\d*)?|\.\d+)$/;
+const FRACTION_RE = /^-?\d+\/\d+$/;
 function parsePostfix(tokens) {
   const stack = [];
   
   for (const token of tokens) {
-    // Numeric literals including fractions and negative numbers
-    if (/^-?\d+(\.\d+)?$/.test(token) || /^-?\d+\/\d+$/.test(token)) {
+    // Numeric literals: decimals or simple integer fractions
+    if (DECIMAL_RE.test(token) || FRACTION_RE.test(token)) {
       stack.push(new Node("num", token));
     }
     // Variables (single letters)
@@ -219,19 +222,15 @@ function toLatex(node, parentPrec = 0, inFunc = false) {
   } else if (node.type === "func") {
     const fn = UNARY_OPS[node.value];
     if (!fn) throw new Error("Unknown unary op: " + node.value);
-    
-    // Special case for 'neg' with complex expressions
+    // Special case: negating a sum or difference should parenthesize
     if (node.value === 'neg' && node.children[0].type === 'op' && 
         (node.children[0].value === '+' || node.children[0].value === '-')) {
-      const argLatex = toLatex(node.children[0], 0, true);
-      return `-(${argLatex})`;
+      const expr = toLatex(node.children[0], 0, true);
+      return `-(${expr})`;
     }
-    
-    const childNode = node.children[0];
-    const argLatex = toLatex(childNode, 0, true);
-    
-    // Pass the child node's requiresBracketsForExponentiation flag to the function
-    return fn(argLatex, childNode.requiresBracketsForExponentiation);
+    // Otherwise just apply the unary formatting function
+    const argLatex = toLatex(node.children[0], 0, true);
+    return fn(argLatex);
   } else if (node.type === "op") {
     const opInfo = BINARY_OPS[node.value];
     if (!opInfo) throw new Error("Unknown binary op: " + node.value);
