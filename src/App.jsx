@@ -92,6 +92,17 @@ function App() {
     setRawOutput(output);
   };
 
+  // Listen for Back/Forward navigation and sync app state
+  useEffect(() => {
+    const handlePop = (event) => {
+      // Use history state if available (for popstate), else fall back to URL
+      const t = event.state?.T ?? new URLSearchParams(window.location.search).get('T') ?? '';
+      setInputValue(t);
+    };
+    window.addEventListener('popstate', handlePop);
+    return () => window.removeEventListener('popstate', handlePop);
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <MathJaxProvider>
@@ -100,22 +111,20 @@ function App() {
             <h1>Inverse Symbolic Calculator</h1>
             <p>{promptText}</p>
           </header>
-          
+
           <main>
-            <InputForm 
-              value={inputValue} 
+            <InputForm
+              value={inputValue}
               onChange={handleInputChange}
               onRandom={handleRandom}
             />
-            
-            <EquationDisplay 
+            <EquationDisplay
               targetValue={inputValue}
               riesOptions={riesOptions}
               onRawOutputUpdate={handleRawOutputUpdate}
               solveForX={riesOptions.solveForX}
             />
-            
-            <DebugPanel 
+            <DebugPanel
               targetValue={inputValue}
               rawOutput={rawOutput}
               onRandomValue={handleInputChange}
@@ -123,7 +132,7 @@ function App() {
               onRIESOptionChange={handleRIESOptionChange}
             />
           </main>
-          
+
         </div>
       </MathJaxProvider>
     </QueryClientProvider>
