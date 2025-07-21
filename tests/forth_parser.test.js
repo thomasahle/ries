@@ -188,6 +188,13 @@ const tests = [
    {input: "x y + z * a / b - dup*", expected: "(\\frac{(x + y) z}{a} - b)^{2}"},
 
    {input: "3 4 *", expected: "3 \\cdot 4"},
+   {input: "3 7 5 * / 1 2 atan2 1 - -", expected: "\\frac{3}{7 \\cdot 5} - (\\operatorname{atan_2}(1,2) - 1)"},
+
+   {input: "3 4 5 - -", expected: "3 - (4 - 5)"},
+   {input: "3 4 5 + -", expected: "3 - (4 + 5)"},
+   {input: "3 4 5 * -", expected: "3 - 4 \\cdot 5"},
+   {input: "3 4 5 atan2 -", expected: "3 - \\operatorname{atan_2}(4,5)"},
+   {input: "3 4 5 6 - - -", expected: "3 - (4 - (5 - 6))"},
 ];
 
 // Run tests using Node's built-in test runner

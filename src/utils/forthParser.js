@@ -315,7 +315,18 @@ function toLatex(node, parentPrec = 0, inFunc = false) {
     
     // Normal case for all other binary operations
     const left = toLatex(node.children[0], prec, inFunc);
-    const right = toLatex(node.children[1], prec, inFunc);
+    
+    // For subtraction, check if the right operand needs parentheses for disambiguation
+    // Only + and - on the right side of subtraction create ambiguity
+    let rightPrec = prec;
+    if (node.value === "-" && node.children[1].type === "op") {
+      const rightOp = node.children[1].value;
+      if (rightOp === "+" || rightOp === "-") {
+        rightPrec = Infinity; // Force parentheses
+      }
+    }
+    
+    const right = toLatex(node.children[1], rightPrec, inFunc);
     
     let expr = opInfo.op(left, right);
     
