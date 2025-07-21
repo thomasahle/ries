@@ -195,6 +195,25 @@ const tests = [
    {input: "3 4 5 * -", expected: "3 - 4 \\cdot 5"},
    {input: "3 4 5 atan2 -", expected: "3 - \\operatorname{atan_2}(4,5)"},
    {input: "3 4 5 6 - - -", expected: "3 - (4 - (5 - 6))"},
+   
+   // Division edge cases
+   {input: "1 2 + 3 /", expected: "\\frac{1 + 2}{3}"},
+   {input: "1 2 3 + /", expected: "\\frac{1}{2 + 3}"},
+   {input: "1 2 / 3 /", expected: "\\frac{\\frac{1}{2}}{3}"},
+   {input: "1 2 - 3 /", expected: "\\frac{1 - 2}{3}"},
+   {input: "1 2 / 3 -", expected: "\\frac{1}{2} - 3"},
+   
+   // Function arguments with operations
+   {input: "x y + sinpi", expected: "\\sin\\bigl(\\pi (x + y)\\bigr)"},
+   {input: "1 2 + sqrt", expected: "\\sqrt{1 + 2}"},
+   {input: "x y - ln", expected: "\\ln(x - y)"},
+   
+   // Negation cases
+   {input: "1 2 / neg", expected: "-\\frac{1}{2}"},
+   {input: "x y + neg", expected: "-(x + y)"},
+   
+   // Complex atan2 cases
+   {input: "1 2 + 3 4 - atan2", expected: "\\operatorname{atan_2}(1 + 2,3 - 4)"},
 ];
 
 // Run tests using Node's built-in test runner

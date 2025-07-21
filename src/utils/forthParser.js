@@ -222,6 +222,12 @@ function toLatex(node, parentPrec = 0, inFunc = false) {
       const expr = toLatex(node.children[0], 0, true);
       return `-(${expr})`;
     }
+    // For sinpi, cospi, tanpi functions, we need to pass multiplication precedence
+    // so that addition/subtraction operations get parenthesized
+    if (node.value === 'sinpi' || node.value === 'cospi' || node.value === 'tanpi') {
+      const argLatex = toLatex(node.children[0], 2, false); // 2 is multiplication precedence, false to allow parentheses
+      return fn(argLatex);
+    }
     // Otherwise just apply the unary formatting function
     const argLatex = toLatex(node.children[0], 0, true);
     return fn(argLatex);
