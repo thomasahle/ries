@@ -1,6 +1,6 @@
-# RIES Equation Finder
+# RIES Inverse Symbolic Calculator
 
-A web interface for RIES (Regression Inverse Equation Search) by Robert Munafo.
+A web interface for RIES ([RILYBOT Inverse Equation Solver](https://www.mrob.com/pub/ries/index.html#:~:text=acronym%20for%20RILYBOT%20Inverse%20Equation%20Solver)) by Robert Munafo.
 
 ## Overview
 
