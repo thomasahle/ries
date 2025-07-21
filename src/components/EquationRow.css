@@ -14,11 +14,11 @@
 }
 
 .equation-row:hover {
-  box-shadow: 0 0 0 1px rgba(255, 165, 0, 0.6);
+  box-shadow: inset 0 0 0 1px rgba(255, 165, 0, 0.6);
 }
 
 .equation-row:active {
-  box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.9);
+  box-shadow: inset 0 0 0 2px rgba(255, 165, 0, 0.9);
 }
 
 /* Floating copy message overlay */
@@ -72,11 +72,16 @@
   width: 600px; /* Adjust to match your visible container's width */
 }
 
+/* Container for the entire row including overlay */
+.equation-row-container {
+  position: relative;
+  width: 100%;
+}
+
 /* Wrapper for the row to allow the overlay to float above */
 /* Wrapper for the row to allow the overlay to float above */
 /* Wrapper for row overlay */
 .equation-row-wrapper {
-  position: relative;
   width: 100%;
   /* Enable horizontal scrolling when the equation content overflows */
   overflow-x: auto;

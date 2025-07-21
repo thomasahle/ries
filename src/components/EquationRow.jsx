@@ -68,16 +68,18 @@ export default function EquationRow({ equation, targetValue, decimals }) {
   }, [fullLatex, isReady, typesetPromise]);
 
   return (
-    <div className="equation-row-wrapper">
-      <div
-        className="equation-row"
-        onClick={copyEquation}
-        dangerouslySetInnerHTML={{ __html: renderedHTML }}
-      />
+    <div className="equation-row-container">
+      <div className="equation-row-wrapper">
+        <div
+          className="equation-row"
+          onClick={copyEquation}
+          dangerouslySetInnerHTML={{ __html: renderedHTML }}
+        />
+        <div ref={hiddenRef} className="offscreen" />
+      </div>
       {isCopied && (
         <div className="copy-message-overlay">Copied to clipboard!</div>
       )}
-      <div ref={hiddenRef} className="offscreen" />
     </div>
   );
 }
