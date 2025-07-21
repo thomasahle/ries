@@ -214,6 +214,8 @@ const tests = [
    
    // Complex atan2 cases
    {input: "1 2 + 3 4 - atan2", expected: "\\operatorname{atan_2}(1 + 2,3 - 4)"},
+
+   {input: "2 neg 3 **", expected: "(-2)^{3}"},
 ];
 
 // Run tests using Node's built-in test runner
