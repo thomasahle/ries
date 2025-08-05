@@ -40,6 +40,15 @@ function App() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const tParam = urlParams.get('T');
+    const solveParam = urlParams.get('solve');
+    
+    // Handle solve parameter
+    if (solveParam !== null) {
+      setRiesOptions(prev => ({
+        ...prev,
+        solveForX: solveParam === 'true'
+      }));
+    }
     
     if (tParam) {
       setInputValue(tParam);
@@ -51,7 +60,10 @@ function App() {
       // Update URL with the random value
       const url = new URL(window.location);
       url.searchParams.set('T', randomValue);
-      window.history.pushState({ T: randomValue }, '', url);
+      if (riesOptions.solveForX) {
+        url.searchParams.set('solve', 'true');
+      }
+      window.history.pushState({ T: randomValue, solve: riesOptions.solveForX }, '', url);
     }
   }, []);
 
@@ -83,7 +95,20 @@ function App() {
         return { ...prev, [name]: value };
       }
       // If it's a complete options object
-      return { ...prev, ...newOptions };
+      const updated = { ...prev, ...newOptions };
+      
+      // Update URL if solveForX changed
+      if ('solveForX' in newOptions) {
+        const url = new URL(window.location);
+        if (newOptions.solveForX) {
+          url.searchParams.set('solve', 'true');
+        } else {
+          url.searchParams.delete('solve');
+        }
+        window.history.pushState({ T: inputValue, solve: newOptions.solveForX }, '', url);
+      }
+      
+      return updated;
     });
   };
 
@@ -95,9 +120,13 @@ function App() {
   // Listen for Back/Forward navigation and sync app state
   useEffect(() => {
     const handlePop = (event) => {
+      const urlParams = new URLSearchParams(window.location.search);
       // Use history state if available (for popstate), else fall back to URL
-      const t = event.state?.T ?? new URLSearchParams(window.location.search).get('T') ?? '';
+      const t = event.state?.T ?? urlParams.get('T') ?? '';
+      const solve = event.state?.solve ?? (urlParams.get('solve') === 'true');
+      
       setInputValue(t);
+      setRiesOptions(prev => ({ ...prev, solveForX: solve }));
     };
     window.addEventListener('popstate', handlePop);
     return () => window.removeEventListener('popstate', handlePop);
