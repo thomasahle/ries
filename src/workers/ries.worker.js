@@ -22,6 +22,10 @@ const basePath = getBasePath();
 // Load the RIES initializer (createRIESModule) into the worker.
 importScripts(`${basePath}ries.js`);
 
+// ries.c exits with EXIT_NO_ERROR when a search ends early on success
+// (e.g. an exact match was found); it is not a failure.
+const RIES_EXIT_NO_ERROR = -9998;
+
 // Cached promise for the compiled WASM module, shared by all instances.
 let wasmModulePromise = null;
 
@@ -54,7 +58,7 @@ function getWasmModule() {
 /**
  * Create a fresh RIES module instance backed by the shared compiled module.
  * @param {WebAssembly.Module} wasmModule - The compiled RIES module
- * @param {{text: string}} output - Receives everything RIES prints
+ * @param {{stdout: string, stderr: string}} output - Receives everything RIES prints
  * @returns {Promise<Object>} The initialized Emscripten module instance
  */
 function createInstance(wasmModule, output) {
@@ -64,16 +68,17 @@ function createInstance(wasmModule, output) {
   });
 
   const ready = createRIESModule({
+    thisProgram: 'ries', // argv[0], which RIES prefixes to its own error messages
     instantiateWasm: (imports, onInstantiated) => {
       WebAssembly.instantiate(wasmModule, imports)
         .then((instance) => onInstantiated(instance, wasmModule), rejectInstantiation);
       return {};
     },
     print: (text) => {
-      output.text += text + '\n';
+      output.stdout += text + '\n';
     },
     printErr: (text) => {
-      output.text += 'Error: ' + text + '\n';
+      output.stderr += text + '\n';
     },
   });
 
@@ -86,20 +91,34 @@ function createInstance(wasmModule, output) {
  * Run one RIES calculation in a fresh instance.
  * @param {string} targetValue - The value to find equations for
  * @param {string[]} args - RIES command line flags (without the target value)
- * @returns {Promise<{rawOutput: string}>}
+ * @returns {Promise<{rawOutput: string, stderr: string, exitCode: number}>}
  */
 async function runCalculation(targetValue, args) {
   const wasmModule = await getWasmModule();
-  const output = { text: '' };
+  const output = { stdout: '', stderr: '' };
   const instance = await createInstance(wasmModule, output);
 
   // Use provided args if available, or fall back to default formatting
   const commandArgs = args.length > 0 ? [...args, targetValue] : ['-F3', targetValue];
 
-  // Synchronous: blocks this thread until RIES finishes.
-  instance.callMain(commandArgs);
+  let exitCode;
+  try {
+    // Synchronous: blocks this thread until RIES finishes. With EXIT_RUNTIME
+    // off callMain returns the exit code; other Emscripten configurations
+    // throw an ExitStatus instead, so handle both.
+    exitCode = instance.callMain(commandArgs);
+  } catch (err) {
+    if (err && err.name === 'ExitStatus') {
+      exitCode = err.status;
+    } else {
+      throw err;
+    }
+  }
+  if (exitCode === RIES_EXIT_NO_ERROR) {
+    exitCode = 0;
+  }
 
-  return { rawOutput: output.text };
+  return { rawOutput: output.stdout, stderr: output.stderr, exitCode };
 }
 
 /**

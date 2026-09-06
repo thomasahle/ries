@@ -88,7 +88,13 @@ export function useRIESCalculation(targetValue, riesOptions, onRawOutputUpdate) 
         onRawOutputUpdate(result.rawOutput);
       }
 
-      return { equations, rawOutput: result.rawOutput, computedTarget: queryTarget };
+      return {
+        equations,
+        rawOutput: result.rawOutput,
+        stderr: result.stderr || '',
+        exitCode: result.exitCode ?? null,
+        computedTarget: queryTarget,
+      };
     },
     {
       retry: false,
@@ -102,6 +108,8 @@ export function useRIESCalculation(targetValue, riesOptions, onRawOutputUpdate) 
   return {
     equations: data?.equations || [],
     rawOutput: data?.rawOutput || "",
+    stderr: data?.stderr || "",
+    exitCode: data?.exitCode ?? null,
     computedTarget: data?.computedTarget || targetValue,
     isLoading,
     isError,
