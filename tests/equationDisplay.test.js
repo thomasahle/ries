@@ -12,7 +12,7 @@ jest.mock('../src/components/EquationRow', () => {
 jest.mock('../src/workers/riesWorkerClient', () => ({ sendRiesRequest: jest.fn() }))
 import { render, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import { QueryClient, QueryClientProvider } from 'react-query'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { sendRiesRequest } from '../src/workers/riesWorkerClient'
 import EquationDisplay from '../src/components/EquationDisplay'
 
@@ -76,7 +76,8 @@ describe('Pending calculation', () => {
       .mockReturnValueOnce(new Promise(() => {}))
     const { rerender, container } = render(display(client, '2.5'))
     await act(async () => { answer({ rawOutput: RIES_OUTPUT, stderr: '', exitCode: 0 }) })
-    expect(screen.getByText('x + 1 = 2 x')).toBeInTheDocument()
+    // The query notifies its observers on a timer, so wait for the rows
+    expect(await screen.findByText('x + 1 = 2 x')).toBeInTheDocument()
     expect(container.querySelector('.equations-container.blurred')).toBeNull()
 
     rerender(display(client, '2.55'))

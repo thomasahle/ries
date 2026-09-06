@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import InputForm from './components/InputForm';
 import EquationDisplay from './components/EquationDisplay';
 import DebugPanel from './components/DebugPanel';

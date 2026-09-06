@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useQuery, CancelledError } from 'react-query';
+import { useQuery, useQueryClient, CancelledError, keepPreviousData } from '@tanstack/react-query';
 import { sendRiesRequest } from '../workers/riesWorkerClient';
 import { parseRIESOutput } from '../utils/riesParser.js';
 
@@ -59,9 +59,12 @@ export function useRIESCalculation(targetValue, riesOptions, onRawOutputUpdate) 
   // too; otherwise a fresh load briefly falls through to "No equations found".
   const isDebouncing = queryTarget !== targetValue || queryOptions !== riesOptions;
 
-  const { data, isLoading, isError, error, isFetching, refetch } = useQuery(
-    ['ries', queryTarget, queryOptions],
-    async () => {
+  const queryClient = useQueryClient();
+  const queryKey = ['ries', queryTarget, queryOptions];
+
+  const { data, isLoading, isError, error, isFetching, refetch } = useQuery({
+    queryKey,
+    queryFn: async () => {
       if (isBlank(queryTarget)) {
         return { equations: [], rawOutput: '', computedTarget: queryTarget };
       }
@@ -82,8 +85,9 @@ export function useRIESCalculation(targetValue, riesOptions, onRawOutputUpdate) 
       // Use the worker to run the calculation.
       const result = await sendRiesRequest(queryTarget, queryOptions);
       if (result.superseded) {
-        // A newer value replaced this one before it ran. Revert the query
-        // silently so react-query neither caches it nor reports an error.
+        // A newer value replaced this one before it ran. Cancel the query so
+        // it reverts silently: nothing is cached and no error is reported.
+        await queryClient.cancelQueries({ queryKey, exact: true });
         throw new CancelledError({ revert: true });
       }
       const equations = parseRIESOutput(result.rawOutput);
@@ -96,14 +100,13 @@ export function useRIESCalculation(targetValue, riesOptions, onRawOutputUpdate) 
         computedTarget: queryTarget,
       };
     },
-    {
-      retry: false,
-      refetchOnWindowFocus: false,
-      keepPreviousData: true,
-      enabled: !isBlank(queryTarget),
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    }
-  );
+    retry: false,
+    refetchOnWindowFocus: false,
+    // Keep showing the previous result (blurred) while the next one computes
+    placeholderData: keepPreviousData,
+    enabled: !isBlank(queryTarget),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
 
   // Raw output shown to the user: cleared when the input is blank, otherwise
   // whatever result is currently displayed (cached, zero case or fresh).
