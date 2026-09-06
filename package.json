@@ -8,9 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node --test tests/forth_parser.test.js tests/highlighting.test.js tests/parsing.test.js && jest",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "test": "node --test tests/forth_parser.test.js tests/highlighting.test.js tests/parsing.test.js && jest"
   },
   "author": "",
   "license": "GPL-3.0",
@@ -29,7 +27,6 @@
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
     "babel-jest": "^30.5.1",
-    "gh-pages": "^6.3.0",
     "jest": "^30.5.1",
     "jest-environment-jsdom": "^30.5.1",
     "vite": "^8.2.2"
