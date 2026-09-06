@@ -36,10 +36,18 @@ This will create a production-ready build in the `dist` directory.
 
 ## Testing
 
-To run tests for the FORTH parser:
+To run all tests (the FORTH parser, RIES output parser and formatting suites under
+Node's built-in test runner, followed by the React tests under jest):
 
 ```
 npm test
+```
+
+To run a single suite:
+
+```
+node --test tests/forth_parser.test.js
+npx jest tests/popstate.test.js
 ```
 
 ## Building WASM Module
