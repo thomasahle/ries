@@ -1,6 +1,7 @@
 import React from 'react';
 import { useRIESCalculation } from '../hooks/useRIESCalculation';
 import { getRIESMessage } from '../utils/riesParser.js';
+import { DEFAULT_SEARCH_LEVEL, parseSearchLevel } from '../utils/searchLevels';
 import EquationRow from './EquationRow';
 import './EquationDisplay.css';
 
@@ -18,6 +19,13 @@ export default function EquationDisplay({ targetValue, riesOptions, onRawOutputU
     error, 
     computedTarget 
   } = useRIESCalculation(targetValue, riesOptions, onRawOutputUpdate);
+
+  // A deeper search (-l3, -l4) takes seconds rather than a fraction of one;
+  // say so wherever the spinner shows.
+  const searchLevel = parseSearchLevel(riesOptions?.searchLevel);
+  const deeperHint = searchLevel > DEFAULT_SEARCH_LEVEL ? (
+    <p className="loading-hint">Searching deeper (-l{searchLevel}), this takes a little longer…</p>
+  ) : null;
 
   // When input is empty, show a friendly message.
   if (!targetValue || targetValue.trim() === '') {
@@ -37,6 +45,7 @@ export default function EquationDisplay({ targetValue, riesOptions, onRawOutputU
         <div className="loading-indicator">
           <p>Calculating equations for {targetValue}...</p>
           <div className="spinner"></div>
+          {deeperHint}
         </div>
       </div>
     );
@@ -108,6 +117,7 @@ export default function EquationDisplay({ targetValue, riesOptions, onRawOutputU
       {isFetching && (
         <div className="loading-overlay">
           <div className="spinner"></div>
+          {deeperHint}
         </div>
       )}
     </div>
