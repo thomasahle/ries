@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery, CancelledError } from 'react-query';
 import { sendRiesRequest } from '../workers/riesWorkerClient';
 import { parseRIESOutput } from '../utils/riesParser.js';
@@ -83,11 +83,6 @@ export function useRIESCalculation(targetValue, riesOptions, onRawOutputUpdate) 
       }
       const equations = parseRIESOutput(result.rawOutput);
 
-      // Update raw output via callback if provided
-      if (onRawOutputUpdate) {
-        onRawOutputUpdate(result.rawOutput);
-      }
-
       return {
         equations,
         rawOutput: result.rawOutput,
@@ -105,9 +100,23 @@ export function useRIESCalculation(targetValue, riesOptions, onRawOutputUpdate) 
     }
   );
 
+  // Raw output shown to the user: cleared when the input is blank, otherwise
+  // whatever result is currently displayed (cached, zero case or fresh).
+  const rawOutput = isBlank(targetValue) ? '' : (data?.rawOutput || '');
+
+  // Keep the debug pane in sync with the displayed result. The callback is
+  // read through a ref so a new function identity per render doesn't refire it.
+  const onRawOutputUpdateRef = useRef(onRawOutputUpdate);
+  onRawOutputUpdateRef.current = onRawOutputUpdate;
+  useEffect(() => {
+    if (onRawOutputUpdateRef.current) {
+      onRawOutputUpdateRef.current(rawOutput);
+    }
+  }, [rawOutput]);
+
   return {
     equations: data?.equations || [],
-    rawOutput: data?.rawOutput || "",
+    rawOutput,
     stderr: data?.stderr || "",
     exitCode: data?.exitCode ?? null,
     computedTarget: data?.computedTarget || targetValue,
