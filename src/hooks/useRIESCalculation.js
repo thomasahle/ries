@@ -54,6 +54,11 @@ export function useRIESCalculation(targetValue, riesOptions, onRawOutputUpdate) 
   const { targetValue: queryTarget, riesOptions: queryOptions } =
     useDebouncedInputs(targetValue, riesOptions);
 
+  // While the inputs wait out the debounce the query is still keyed on the old
+  // values and reports neither loading nor fetching. That window is pending
+  // too; otherwise a fresh load briefly falls through to "No equations found".
+  const isDebouncing = queryTarget !== targetValue || queryOptions !== riesOptions;
+
   const { data, isLoading, isError, error, isFetching, refetch } = useQuery(
     ['ries', queryTarget, queryOptions],
     async () => {
@@ -120,10 +125,10 @@ export function useRIESCalculation(targetValue, riesOptions, onRawOutputUpdate) 
     stderr: data?.stderr || "",
     exitCode: data?.exitCode ?? null,
     computedTarget: data?.computedTarget || targetValue,
-    isLoading,
+    isLoading: isLoading || (isDebouncing && data === undefined),
     isError,
     error,
-    isFetching,
+    isFetching: isFetching || isDebouncing,
     refetch
   };
 }
