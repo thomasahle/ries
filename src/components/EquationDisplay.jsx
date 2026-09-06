@@ -77,13 +77,23 @@ export default function EquationDisplay({ targetValue, riesOptions, onRawOutputU
     );
   }
 
+  // Key rows by their equation text so a row keeps its identity across
+  // results; a repeated equation (rare) gets an index suffix to stay unique.
+  const seen = new Map();
+  const rowKeys = equations.map((equation) => {
+    const text = `${equation.lhs} = ${equation.rhs}`;
+    const count = seen.get(text) || 0;
+    seen.set(text, count + 1);
+    return count === 0 ? text : `${text} #${count}`;
+  });
+
   return (
     <div className="equations-container-wrapper" style={{ position: 'relative' }}>
       
       {/* Apply the blurred class when a new request is pending */}
       <div className={`equations-container ${isFetching ? 'blurred' : ''}`}>
         {equations.map((equation, index) => (
-          <React.Fragment key={index}>
+          <React.Fragment key={rowKeys[index]}>
             <EquationRow
               equation={equation}
               targetValue={computedTarget}  // Use frozen target from the worker result
