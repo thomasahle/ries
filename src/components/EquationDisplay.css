@@ -53,6 +53,16 @@
   margin: 5px 0;
 }
 
+/* Plain-text details (stderr, exit code) under a message */
+.message-details {
+  margin: 5px 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  text-align: left;
+  font-size: 12px;
+  color: #6c757d;
+}
+
 .spinner {
   width: 40px;
   height: 40px;
