@@ -1,6 +1,11 @@
-import { useQuery } from 'react-query';
+import { useEffect, useState } from 'react';
+import { useQuery, CancelledError } from 'react-query';
 import { sendRiesRequest } from '../workers/riesWorkerClient';
 import { parseRIESOutput } from '../utils/riesParser.js';
+
+// How long the inputs must be stable before a calculation starts. The input
+// field and URL update instantly; only the (uninterruptible) calculation waits.
+const DEBOUNCE_MS = 200;
 
 // Constants for zero-case
 const ZERO_CASE_EQUATIONS = [
@@ -16,47 +21,84 @@ const ZERO_CASE_EQUATIONS = [
 
 // parseRIESOutput is now imported from utils/riesParser.js
 
+/**
+ * Check whether a target value is blank.
+ * @param {string} targetValue - The raw input value
+ * @returns {boolean} True if there is nothing to calculate
+ */
+function isBlank(targetValue) {
+  return !targetValue || targetValue.trim() === '';
+}
+
+/**
+ * Return the inputs as they were the last time they stayed unchanged for DEBOUNCE_MS.
+ * @param {string} targetValue - The value to find equations for
+ * @param {Object} riesOptions - Options to pass to RIES
+ * @returns {{targetValue: string, riesOptions: Object}} The debounced inputs
+ */
+function useDebouncedInputs(targetValue, riesOptions) {
+  const [debounced, setDebounced] = useState({ targetValue, riesOptions });
+
+  useEffect(() => {
+    if (debounced.targetValue === targetValue && debounced.riesOptions === riesOptions) {
+      return undefined;
+    }
+    const timer = setTimeout(() => setDebounced({ targetValue, riesOptions }), DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [targetValue, riesOptions]);
+
+  return debounced;
+}
+
 export function useRIESCalculation(targetValue, riesOptions, onRawOutputUpdate) {
+  const { targetValue: queryTarget, riesOptions: queryOptions } =
+    useDebouncedInputs(targetValue, riesOptions);
+
   const { data, isLoading, isError, error, isFetching, refetch } = useQuery(
-    ['ries', targetValue, riesOptions],
+    ['ries', queryTarget, queryOptions],
     async () => {
-      if (!targetValue || targetValue.trim() === '') {
-        return { equations: [], rawOutput: '', computedTarget: targetValue };
+      if (isBlank(queryTarget)) {
+        return { equations: [], rawOutput: '', computedTarget: queryTarget };
       }
-      if (targetValue === "0" || parseFloat(targetValue) === 0) {
+      if (queryTarget === "0" || parseFloat(queryTarget) === 0) {
         return {
           equations: ZERO_CASE_EQUATIONS,
           rawOutput: "Zero case - special equations",
-          computedTarget: targetValue,
+          computedTarget: queryTarget,
         };
       }
-      
+
       // Validate input is a number.
-      const num = parseFloat(targetValue);
+      const num = parseFloat(queryTarget);
       if (isNaN(num)) {
         throw new Error("Please enter a valid number");
       }
-      
+
       // Use the worker to run the calculation.
-      const result = await sendRiesRequest(targetValue, riesOptions);
+      const result = await sendRiesRequest(queryTarget, queryOptions);
+      if (result.superseded) {
+        // A newer value replaced this one before it ran. Revert the query
+        // silently so react-query neither caches it nor reports an error.
+        throw new CancelledError({ revert: true });
+      }
       const equations = parseRIESOutput(result.rawOutput);
-      
+
       // Update raw output via callback if provided
       if (onRawOutputUpdate) {
         onRawOutputUpdate(result.rawOutput);
       }
-      
-      return { equations, rawOutput: result.rawOutput, computedTarget: targetValue };
+
+      return { equations, rawOutput: result.rawOutput, computedTarget: queryTarget };
     },
     {
       retry: false,
       refetchOnWindowFocus: false,
       keepPreviousData: true,
-      enabled: !!targetValue && targetValue.trim() !== '',
+      enabled: !isBlank(queryTarget),
       staleTime: 5 * 60 * 1000, // 5 minutes
     }
   );
-  
+
   return {
     equations: data?.equations || [],
     rawOutput: data?.rawOutput || "",

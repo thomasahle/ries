@@ -1,17 +1,22 @@
 // src/workers/riesWorkerClient.js
 //
 // Main-thread client for the RIES worker. Exactly one request is in flight at
-// a time; the rest wait in order. The only safety net is a per-request timeout
-// that terminates and recreates the worker.
+// a time and at most one more is queued: the worker cannot interrupt a running
+// calculation, so a newer request supersedes the queued one instead of waiting
+// behind it. The only safety net is a per-request timeout that terminates and
+// recreates the worker.
 
 // Constants
 const REQUEST_TIMEOUT = 60000; // 60-second timeout per calculation
+
+// Result resolved for a request that was replaced by a newer one before it ran
+const SUPERSEDED_RESULT = Object.freeze({ superseded: true, rawOutput: '', stderr: '', exitCode: null });
 
 // Singleton worker instance
 let worker = null;
 let msgId = 0;
 let inFlight = null; // { id, targetValue, args, resolve, reject, timer }
-const queued = []; // { targetValue, args, resolve, reject }
+let queued = null; // { targetValue, args, resolve, reject }
 
 /**
  * Create the worker and wire up its handlers
@@ -71,12 +76,13 @@ function failInFlight(error) {
 }
 
 /**
- * Send the next queued request to the worker if nothing is in flight
+ * Send the queued request to the worker if nothing is in flight
  */
 function dispatchNext() {
-  if (inFlight || queued.length === 0) return;
+  if (inFlight || !queued) return;
 
-  const request = queued.shift();
+  const request = queued;
+  queued = null;
 
   if (!worker) {
     worker = createWorker();
@@ -98,7 +104,8 @@ function dispatchNext() {
  * Send a calculation request to the RIES worker
  * @param {string} targetValue - The value to find equations for
  * @param {Object} options - Options to pass to RIES
- * @returns {Promise<{rawOutput: string}>} - Resolves with RIES's output
+ * @returns {Promise<{rawOutput: string, stderr: string, exitCode: number|null, superseded?: boolean}>}
+ *   rawOutput is RIES's stdout; superseded is set when a newer request replaced this one before it ran
  */
 export function sendRiesRequest(targetValue, options = {}) {
   // Build RIES command arguments
@@ -138,7 +145,11 @@ export function sendRiesRequest(targetValue, options = {}) {
   }
 
   return new Promise((resolve, reject) => {
-    queued.push({ targetValue, args, resolve, reject });
+    // Latest request wins: a request still waiting for the worker is dropped
+    if (queued) {
+      queued.resolve(SUPERSEDED_RESULT);
+    }
+    queued = { targetValue, args, resolve, reject };
     dispatchNext();
   });
 }
