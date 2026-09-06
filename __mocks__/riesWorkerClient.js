@@ -1,3 +1,3 @@
 module.exports = {
-  sendRiesRequest: () => Promise.resolve({ rawOutput: '' })
+  sendRiesRequest: () => Promise.resolve({ rawOutput: '', stderr: '', exitCode: 0 })
 };
