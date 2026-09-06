@@ -178,12 +178,10 @@ function App() {
               targetValue={inputValue}
               riesOptions={riesOptions}
               onRawOutputUpdate={handleRawOutputUpdate}
-              solveForX={riesOptions.solveForX}
             />
             <DebugPanel
               targetValue={inputValue}
               rawOutput={rawOutput}
-              onRandomValue={handleInputChange}
               riesOptions={riesOptions}
               onRIESOptionChange={handleRIESOptionChange}
             />
