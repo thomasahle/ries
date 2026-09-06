@@ -19,8 +19,8 @@ const promptOptions = [
 ];
 
 function App() {
-  // Create a client
-  const queryClient = new QueryClient();
+  // Create the query client once for the lifetime of the app
+  const [queryClient] = useState(() => new QueryClient());
   // Random header prompt selected once per session
   const [promptText] = useState(() =>
     promptOptions[Math.floor(Math.random() * promptOptions.length)]
