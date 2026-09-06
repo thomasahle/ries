@@ -216,6 +216,37 @@ const tests = [
    {input: "1 2 + 3 4 - atan2", expected: "\\operatorname{atan_2}(1 + 2,3 - 4)"},
 
    {input: "2 neg 3 **", expected: "(-2)^{3}"},
+
+   // Issue #6: the base of a root must keep its parentheses when it is a sum
+   // (without them, ((phi+3)^(1/e)+6)^(1/phi) = 3.5466 renders as a different value)
+   {input: "phi 3 + e root", expected: "(\\phi + 3)^{\\frac{1}{e}}"},
+   {input: "phi 3 + e root 6 + phi root", expected: "((\\phi + 3)^{\\frac{1}{e}} + 6)^{\\frac{1}{\\phi}}"},
+   // Any base that binds looser than exponentiation gets parenthesized under root
+   {input: "x y - 3 root", expected: "(x - y)^{\\frac{1}{3}}"},
+   {input: "x 2 * 3 root", expected: "(2 x)^{\\frac{1}{3}}"},
+   {input: "x 2 / 7 root", expected: "(\\frac{x}{2})^{\\frac{1}{7}}"},
+   {input: "1 x / 3 root", expected: "(\\frac{1}{x})^{\\frac{1}{3}}"},
+   {input: "x recip 3 root", expected: "(\\frac{1}{x})^{\\frac{1}{3}}"},
+   {input: "x neg 3 root", expected: "(-x)^{\\frac{1}{3}}"},
+   {input: "2 exp 3 root", expected: "(e^{2})^{\\frac{1}{3}}"},
+   {input: "x 2 ** 3 root", expected: "(x^{2})^{\\frac{1}{3}}"},
+   {input: "x 1 + 2 ** 3 root", expected: "((x + 1)^{2})^{\\frac{1}{3}}"},
+   // A compound root degree needs no parentheses inside \frac
+   {input: "x 2 3 + root", expected: "x^{\\frac{1}{2 + 3}}"},
+   // Functions bind tighter than exponentiation, so no parentheses under root
+   {input: "x ln 3 root", expected: "\\ln(x)^{\\frac{1}{3}}"},
+   {input: "x y atan2 3 root", expected: "\\operatorname{atan_2}(x,y)^{\\frac{1}{3}}"},
+   {input: "x y logN 3 root", expected: "\\log_{y}(x)^{\\frac{1}{3}}"},
+
+   // Reciprocals as the base of a power need parentheses, like "/"
+   {input: "x recip 2 **", expected: "(\\frac{1}{x})^{2}"},
+   {input: "1 x / 2 **", expected: "(\\frac{1}{x})^{2}"},
+   {input: "2 ln recip x **", expected: "(\\frac{1}{\\ln(2)})^{x}"},
+   {input: "4 7 ** recip dup* pi - neg", expected: "-((\\frac{1}{4^{7}})^{2} - \\pi)"},
+   // Functions as the base of a power stay unparenthesized
+   {input: "x sqrt 2 **", expected: "\\sqrt{x}^{2}"},
+   {input: "x ln 2 **", expected: "\\ln(x)^{2}"},
+   {input: "x y logN 2 **", expected: "\\log_{y}(x)^{2}"},
 ];
 
 // Run tests using Node's built-in test runner
