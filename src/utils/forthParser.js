@@ -68,20 +68,9 @@ const BINARY_OPS = {
   atan2: { prec: 1, op: (a, b) => `\\operatorname{atan_2}(${a},${b})` },
   // Log base N (logN)
   logN: { prec: 3, op: (a, b) => `\\log_{${b}}(${a})` },
-  // Root (N-th root of x)
-  root: { 
-    prec: 3, 
-    op: (a, b) => {
-      // Check if the base already has an exponent
-      const needsParens = a.includes('^');
-      
-      // Add parentheses if needed
-      if (needsParens) {
-        return `(${a})^{\\frac{1}{${b}}}`;
-      }
-      return `${a}^{\\frac{1}{${b}}}`;
-    }
-  }
+  // Root (N-th root of x). Rendered as a power in toLatex, which brackets the
+  // base when needed (see requiresBracketsForExponentiation).
+  root: { prec: 3, op: (a, b) => `${a}^{\\frac{1}{${b}}}` }
 };
 
 /**
@@ -167,8 +156,10 @@ function parsePostfix(tokens) {
       }
       const arg = stack.pop();
       
-      // For exponentiation, we need parentheses around exp() and negation
-      const requiresBrackets = token === 'exp' || token === 'neg';
+      // For exponentiation, we need parentheses around exp(), negation and
+      // reciprocals (\frac{1}{x}^{2} would read as 1/(x^2))
+      const requiresBrackets = token === 'exp' || token === 'neg' ||
+          token === 'r' || token === 'recip';
       
       stack.push(new Node("func", token, [arg], requiresBrackets));
     }
@@ -245,13 +236,20 @@ function toLatex(node, parentPrec = 0, inFunc = false) {
       return `\\frac{${numerator}}{${denominator}}`;
     }
     
-    // Special handling for powers (both ^ and **)
-    if (node.value === "^" || node.value === "**") {
-      // Generate base LaTeX
+    // Special handling for powers (^, ** and root)
+    if (node.value === "^" || node.value === "**" || node.value === "root") {
+      // Generate base LaTeX, bracketing it if its top-level operator binds
+      // looser than exponentiation (sums, products, fractions, powers, ...)
       const baseNode = node.children[0];
-      const base = toLatex(baseNode, prec, inFunc);
-      const baseRequiresParentheses = baseNode.requiresBracketsForExponentiation;
-      
+      const rawBase = toLatex(baseNode, prec, inFunc);
+      const base = baseNode.requiresBracketsForExponentiation ? `(${rawBase})` : rawBase;
+
+      // N-th root: base^{1/N}
+      if (node.value === "root") {
+        const degree = toLatex(node.children[1], 0, true);
+        return `${base}^{\\frac{1}{${degree}}}`;
+      }
+
       // Handle fraction exponents specially for formatting
       if (node.children[1].type === "op" && node.children[1].value === "/") {
         const numerator = toLatex(node.children[1].children[0], 0, true);
@@ -266,17 +264,13 @@ function toLatex(node, parentPrec = 0, inFunc = false) {
             `${numerator}/${denominator}` : 
             `\\frac{${numerator}}{${denominator}}`;
         
-        return baseRequiresParentheses ? 
-            `(${base})^{${fracExponent}}` : 
-            `${base}^{${fracExponent}}`;
+        return `${base}^{${fracExponent}}`;
       }
-      
+
       // For non-fraction exponents
       const exponent = toLatex(node.children[1], 0, true);
-      
-      return baseRequiresParentheses ? 
-          `(${base})^{${exponent}}` : 
-          `${base}^{${exponent}}`;
+
+      return `${base}^{${exponent}}`;
     }
     
     // Special handling for multiplication to ensure proper parenthesization
