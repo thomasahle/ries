@@ -3,6 +3,40 @@ import { useMathJax } from '../utils/MathJaxContext';
 import { highlightDifference, formatNumberForLatex } from '../utils/formatting';
 import './EquationRow.css';
 
+/**
+ * Copies text to the clipboard. Uses the async Clipboard API when available and
+ * falls back to a temporary textarea + execCommand('copy') otherwise (e.g. on a
+ * plain-http origin where navigator.clipboard is undefined).
+ * @param {string} text - The text to copy.
+ * @returns {Promise<void>} Resolves on success, rejects if nothing was copied.
+ */
+function copyTextToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text);
+  }
+  return new Promise((resolve, reject) => {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    let copied = false;
+    try {
+      copied = document.execCommand('copy');
+    } catch (err) {
+      copied = false;
+    }
+    document.body.removeChild(textarea);
+    if (copied) {
+      resolve();
+    } else {
+      reject(new Error('Clipboard is not available'));
+    }
+  });
+}
+
 export default function EquationRow({ equation, targetValue, decimals }) {
   const { isReady, typesetPromise } = useMathJax();
   const hiddenRef = useRef(null);
@@ -45,10 +79,10 @@ export default function EquationRow({ equation, targetValue, decimals }) {
     <span class="equation-x-value">${xLatex}</span>
   `;
 
-  // Copy equation to clipboard.
+  // Copy equation to clipboard; the "Copied" overlay is only shown on success.
   const copyEquation = () => {
     const latexEquation = `${equation.lhs} = ${equation.rhs}`;
-    navigator.clipboard.writeText(latexEquation)
+    copyTextToClipboard(latexEquation)
       .then(() => {
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 1500);
@@ -56,15 +90,29 @@ export default function EquationRow({ equation, targetValue, decimals }) {
       .catch(err => console.error('Failed to copy equation to clipboard', err));
   };
 
+  // Keyboard activation for the row (it acts as a button)
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      copyEquation();
+    }
+  };
+
   // Pre-render offscreen: insert raw LaTeX, typeset with MathJax, then store final HTML.
   useEffect(() => {
-    if (!isReady || !hiddenRef.current) return;
-    hiddenRef.current.innerHTML = fullLatex;
-    typesetPromise([hiddenRef.current])
+    const hidden = hiddenRef.current;
+    if (!isReady || !hidden) return;
+    let cancelled = false;
+    hidden.innerHTML = fullLatex;
+    typesetPromise([hidden])
       .then(() => {
-        setRenderedHTML(hiddenRef.current.innerHTML);
+        if (cancelled) return;
+        setRenderedHTML(hidden.innerHTML);
+        // Clear the offscreen copy so it is not left in the DOM
+        hidden.innerHTML = '';
       })
       .catch(err => console.error('MathJax typeset error:', err));
+    return () => { cancelled = true; };
   }, [fullLatex, isReady, typesetPromise]);
 
   return (
@@ -72,10 +120,14 @@ export default function EquationRow({ equation, targetValue, decimals }) {
       <div className="equation-row-wrapper">
         <div
           className="equation-row"
+          role="button"
+          tabIndex={0}
+          aria-label="Copy equation as LaTeX"
           onClick={copyEquation}
+          onKeyDown={handleKeyDown}
           dangerouslySetInnerHTML={{ __html: renderedHTML }}
         />
-        <div ref={hiddenRef} className="offscreen" />
+        <div ref={hiddenRef} className="offscreen" aria-hidden="true" />
       </div>
       {isCopied && (
         <div className="copy-message-overlay">Copied to clipboard!</div>

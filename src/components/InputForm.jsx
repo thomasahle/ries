@@ -1,10 +1,17 @@
 import React from 'react';
 import './InputForm.css';
 
-const InputForm = ({ value, onChange, onRandom }) => {
+const InputForm = ({ value, onChange, onCommit, onRandom }) => {
   // Run calculation immediately on input change
   const handleInputChange = (e) => {
     onChange(e.target.value);
+  };
+
+  // Enter commits the typed value (blur does too)
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && onCommit) {
+      onCommit();
+    }
   };
 
   return (
@@ -13,8 +20,11 @@ const InputForm = ({ value, onChange, onRandom }) => {
         type="number"
         value={value}
         onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
+        onBlur={onCommit}
         step="any"
         placeholder="Enter a number"
+        aria-label="Number to find equations for"
       />
       {onRandom && (
         <button

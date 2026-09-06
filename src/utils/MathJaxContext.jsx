@@ -1,5 +1,5 @@
 // src/utils/MathJaxContext.js
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 const MathJaxContext = createContext({
   isReady: false,
@@ -24,7 +24,9 @@ export const MathJaxProvider = ({ children }) => {
     return () => clearInterval(checkInterval);
   }, []);
 
-  const typesetPromise = (elements) => {
+  // Stable identities: consumers use these as effect dependencies, so a new
+  // function per render would re-typeset every row on every keystroke.
+  const typesetPromise = useCallback((elements) => {
     if (window.MathJax && window.MathJax.typesetPromise) {
       return window.MathJax.typesetPromise(elements || undefined)
         .catch((err) => console.error("MathJax typeset failed:", err));
@@ -33,14 +35,19 @@ export const MathJaxProvider = ({ children }) => {
       return Promise.resolve();
     }
     return Promise.resolve();
-  };
+  }, []);
 
-  const typeset = (elements) => {
+  const typeset = useCallback((elements) => {
     typesetPromise(elements);
-  };
+  }, [typesetPromise]);
+
+  const value = useMemo(
+    () => ({ isReady, typeset, typesetPromise }),
+    [isReady, typeset, typesetPromise]
+  );
 
   return (
-    <MathJaxContext.Provider value={{ isReady, typeset, typesetPromise }}>
+    <MathJaxContext.Provider value={value}>
       {children}
     </MathJaxContext.Provider>
   );

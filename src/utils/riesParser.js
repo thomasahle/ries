@@ -8,10 +8,14 @@ const EQUATION_REGEX = /^\s*(.*?)\s*=\s*(.*?)\s+for\s+x\s*=\s*T\s*([+\-]\s*[\d\.
 // For exact match equations like "x = 8 dup* 5 + ('exact' match)"
 const EXACT_MATCH_REGEX = /^\s*(.*?)\s*=\s*(.*?)\s+\(['"]exact['"]\s+match\)/;
 
+// The target value as echoed in the banner, e.g. "T = -2.5", "T = 1e+15", "T = 69."
+const TARGET_REGEX = /T = (-?[\d.]+(?:e[+-]?\d+)?)/;
+
 /**
  * Parse the RIES output to extract equations in FORTH format.
  * @param {string} text - The raw output from RIES.
- * @returns {Array} Parsed equations with LaTeX formatting.
+ * @returns {Array} Parsed equations with LaTeX formatting; empty when RIES
+ *   printed no equations (see getRIESMessage for the explanation to show).
  */
 export function parseRIESOutput(text) {
   if (!text || text.length === 0) {
@@ -19,28 +23,6 @@ export function parseRIESOutput(text) {
   }
   
   const lines = text.split("\n");
-  
-  // Find both regular offset equations and exact match equations
-  const equationLines = lines.filter(line => 
-    line.includes("=") && 
-    (
-      (line.includes("for x = T") && !line.includes("Your target value")) ||
-      line.includes("('exact' match)")
-    )
-  );
-  
-  if (equationLines.length === 0) {
-    if (text.includes("Your target value:") || text.includes("mrob.com/ries")) {
-      const matchedValue = text.match(/T = ([\d\.]+)/);
-      const valueDisplay = matchedValue ? matchedValue[1] : "value";
-      return [{
-        lhs: "x",
-        rhs: `\\text{No equations found for } ${valueDisplay}`,
-        offset: "0"
-      }];
-    }
-    return [];
-  }
   
   const results = [];
   for (const line of lines) {
@@ -90,4 +72,37 @@ export function parseRIESOutput(text) {
   }
   
   return results;
+}
+
+/**
+ * Explain why RIES output contains no equations, as plain text (not LaTeX).
+ * Option errors are printed as "<program>: <reason>" followed by the usage
+ * text; a banner without equations means nothing matched the target.
+ * @param {string} text - The raw output from RIES.
+ * @returns {string} A human-readable message, or "" if there is nothing to say.
+ */
+export function getRIESMessage(text) {
+  if (!text) {
+    return "";
+  }
+  
+  const usageIndex = text.indexOf("Usage:");
+  if (usageIndex !== -1) {
+    const reason = text
+      .slice(0, usageIndex)
+      .split("\n")
+      .map((line, index) => (index === 0 ? line.replace(/^\S+:\s+/, "") : line).trim())
+      .filter(Boolean)
+      .join(" ");
+    return reason || "RIES could not run with the selected options.";
+  }
+  
+  if (text.includes("Your target value:") || text.includes("mrob.com/ries")) {
+    const matchedValue = text.match(TARGET_REGEX);
+    return matchedValue
+      ? `No equations found for ${matchedValue[1].replace(/\.$/, "")}.`
+      : "No equations found.";
+  }
+  
+  return "";
 }

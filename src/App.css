@@ -12,6 +12,10 @@ div {
   box-sizing: border-box;
 }
 
+#root {
+  width: 100%;
+}
+
 h1 {
   margin-top: 0;
 }
@@ -21,7 +25,9 @@ h1 {
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  width: 700px;
+  max-width: 700px;
+  width: 100%;
+  margin: 0 auto;
   flex: 1;
 }
 
@@ -65,12 +71,6 @@ footer a:hover {
 }
 
 @media only screen and (max-width: 600px) {
-  #root {
-     width: 100%;
-  }
-  .container {
-    width: 100%;
-  }
   body {
     padding: 0;
   }

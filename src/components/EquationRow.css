@@ -21,6 +21,11 @@
   box-shadow: inset 0 0 0 2px rgba(255, 165, 0, 0.9);
 }
 
+.equation-row:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgba(0, 123, 255, 0.7);
+}
+
 /* Floating copy message overlay */
 .copy-message-overlay {
   position: absolute;

@@ -3,9 +3,10 @@ import './RIESOptions.css';
 
 // Define all RIES symbols in a clean layout at module level
 const initialSymbolGroups = [
-  // Row 1 
+  // Row 1 (the Lambert W symbol is omitted: this WASM build answers
+  // "The Lambert W function 'W' requires the stand-alone maths library")
   [
-    { id: 'W', display: 'W', label: 'Lambert W function' },
+    { id: '', display: '', label: '' },
     { id: 'l', display: 'ln', label: 'Natural log' },
     { id: 'L', display: 'logₐb', label: 'Log base A of B' },
     { id: 'p', display: 'π', label: 'Pi' },

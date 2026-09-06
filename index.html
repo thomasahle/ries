@@ -12,6 +12,7 @@
 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f9f9f9">
   <meta name="description" content="RIES Inverse Symbolic Calculator - Find mathematical equations from any number. Identify constants, expressions and formulas matching your numerical value. Perfect for mathematical research and finding closed-form expressions.">
   <meta name="keywords" content="inverse calculator, equation finder, numerical equation solver, find formula from number, mathematical constant identifier, RIES solver, symbolic calculator, equation search, number to formula">
   <title>RIES Inverse Symbolic Calculator - Find Equations from Numbers</title>
@@ -51,7 +52,7 @@
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://thomasahle.com/ries/">
-  <meta property="og:title" content="RIES Equation Solver Online">
+  <meta property="og:title" content="RIES Inverse Symbolic Calculator - Find Equations from Numbers">
   <meta property="og:description" content="Find mathematical equations that match your numerical value with this inverse symbolic calculator">
   <meta property="og:image" content="https://thomasahle.com/ries/media.png">
   <meta property="og:image:width" content="1458">
@@ -60,7 +61,7 @@
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://thomasahle.com/ries/">
-  <meta property="twitter:title" content="RIES Equation Solver Online">
+  <meta property="twitter:title" content="RIES Inverse Symbolic Calculator - Find Equations from Numbers">
   <meta property="twitter:description" content="Find mathematical equations that match your numerical value with this inverse symbolic calculator">
   <meta property="twitter:image" content="https://thomasahle.com/ries/media.png">
   
@@ -72,11 +73,7 @@
         packages: { "[+]": ["color"] },
       },
       startup: {
-        typeset: true,
-        ready: function() {
-          MathJax.startup.defaultReady();
-          window.isMathJaxReady = true;
-        }
+        typeset: true
       },
       options: {
         renderActions: {
@@ -87,13 +84,12 @@
     };
   </script>
   <script id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-
-  <!-- The application will mount here -->
-  <div id="root"></div>
-  <script type="module" src="/src/main.jsx"></script>
 </head>
 <body>
   <noscript>You need to enable JavaScript to run this app.</noscript>
+  <!-- The application will mount here -->
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
   <footer>
     <p>
       <a href="https://github.com/thomasahle/ries" target="_blank">☆ on Github</a>
