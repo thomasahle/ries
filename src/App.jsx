@@ -18,6 +18,21 @@ const promptOptions = [
   'Key in a value to view matching symbolic forms:'
 ];
 
+// A plain decimal number, optionally signed and with an exponent (e.g. "-2.5", ".5", "1e-7")
+const NUMBER_PATTERN = /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/;
+
+/**
+ * Read the T query parameter, accepting only strings that are a finite number.
+ * @param {URLSearchParams} urlParams - The parsed query string.
+ * @returns {string|null} The validated value, or null if absent or malformed.
+ */
+function getTargetParam(urlParams) {
+  const raw = urlParams.get('T');
+  if (raw === null) return null;
+  const value = raw.trim();
+  return NUMBER_PATTERN.test(value) && Number.isFinite(Number(value)) ? value : null;
+}
+
 function App() {
   // Create the query client once for the lifetime of the app
   const [queryClient] = useState(() => new QueryClient());
@@ -39,7 +54,7 @@ function App() {
   // Check URL parameters on initial load
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const tParam = urlParams.get('T');
+    const tParam = getTargetParam(urlParams);
     const solveParam = urlParams.get('solve');
     
     // Handle solve parameter
@@ -122,7 +137,7 @@ function App() {
     const handlePop = (event) => {
       const urlParams = new URLSearchParams(window.location.search);
       // Use history state if available (for popstate), else fall back to URL
-      const t = event.state?.T ?? urlParams.get('T') ?? '';
+      const t = event.state?.T ?? getTargetParam(urlParams) ?? '';
       const solve = event.state?.solve ?? (urlParams.get('solve') === 'true');
       
       setInputValue(t);
