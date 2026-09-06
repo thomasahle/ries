@@ -6,6 +6,8 @@
 // behind it. The only safety net is a per-request timeout that terminates and
 // recreates the worker.
 
+import { searchLevelArg } from '../utils/searchLevels';
+
 // Constants
 const REQUEST_TIMEOUT = 60000; // 60-second timeout per calculation
 
@@ -131,6 +133,12 @@ export function sendRiesRequest(targetValue, options = {}) {
     // Add solution type constraint if specified
     if (options.solutionType) {
       args.push(`-${options.solutionType}`);
+    }
+
+    // Add the search depth (-l); the default level needs no flag
+    const levelArg = searchLevelArg(options.searchLevel);
+    if (levelArg) {
+      args.push(levelArg);
     }
 
     // Add solve-for-x flag if enabled

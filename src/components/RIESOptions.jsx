@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SEARCH_LEVELS, parseSearchLevel, searchLevelArg } from '../utils/searchLevels';
 import './RIESOptions.css';
 
 // Define all RIES symbols in a clean layout at module level
@@ -98,6 +99,9 @@ const RIESOptions = ({ isVisible, onToggle, onOptionsChange, riesOptions }) => {
     
     // Output format
     solveForX: riesOptions?.solveForX || false,
+
+    // Search depth (-l); RIES's default level 2 adds no flag
+    searchLevel: parseSearchLevel(riesOptions?.searchLevel),
     
     // Symbol options
     neverUseSymbols: riesOptions?.neverUseSymbols || '',
@@ -170,6 +174,7 @@ const RIESOptions = ({ isVisible, onToggle, onOptionsChange, riesOptions }) => {
       setOptions({
         solutionType: riesOptions.solutionType || '',
         solveForX: riesOptions.solveForX || false,
+        searchLevel: parseSearchLevel(riesOptions.searchLevel),
         neverUseSymbols: riesOptions.neverUseSymbols || '',
         onlyOneSymbols: riesOptions.onlyOneSymbols || '',
         onlyUseSymbols: riesOptions.onlyUseSymbols || '',
@@ -239,6 +244,10 @@ const RIESOptions = ({ isVisible, onToggle, onOptionsChange, riesOptions }) => {
     
     // Solution types
     if (options.solutionType) params.push(`-${options.solutionType}`);
+
+    // Search depth (the default level adds no flag)
+    const levelArg = searchLevelArg(options.searchLevel);
+    if (levelArg) params.push(levelArg);
     
     // Output format
     if (options.solveForX) params.push('-s');
@@ -304,15 +313,24 @@ const RIESOptions = ({ isVisible, onToggle, onOptionsChange, riesOptions }) => {
       </div>
       
       {/* Options - Controls for equation type and format */}
-      {/* Solution type selector only; 'solveForX' moved to debug controls */}
+      {/* Solution type and search depth; 'solveForX' moved to debug controls */}
       <div className="options-section">
         <h3>Options</h3>
         <div className="options-wrapper">
           <div className="select-option">
             <label>
               Solution type:
-              <SolutionTypeSelector 
+              <SolutionTypeSelector
                 value={options.solutionType || ''}
+                onChange={handleOptionChange}
+              />
+            </label>
+          </div>
+          <div className="select-option">
+            <label>
+              Search depth:
+              <SearchDepthSelector
+                value={options.searchLevel}
                 onChange={handleOptionChange}
               />
             </label>
@@ -358,6 +376,33 @@ export const SolutionTypeSelector = ({ value, onChange }) => {
       {solutionTypes.map(type => (
         <option key={type.value} value={type.value}>
           {type.label}
+        </option>
+      ))}
+    </select>
+  );
+};
+
+// Search depth selector (RIES's -l option); the reported value is a number
+export const SearchDepthSelector = ({ value, onChange }) => {
+  const handleChange = (e) => {
+    onChange({
+      target: {
+        name: 'searchLevel',
+        value: Number(e.target.value),
+        type: 'select'
+      }
+    });
+  };
+
+  return (
+    <select
+      value={value}
+      onChange={handleChange}
+      className="solution-type-select search-depth-select"
+    >
+      {SEARCH_LEVELS.map(level => (
+        <option key={level.value} value={level.value}>
+          {level.label}
         </option>
       ))}
     </select>

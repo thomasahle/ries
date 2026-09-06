@@ -4,6 +4,7 @@ import InputForm from './components/InputForm';
 import EquationDisplay from './components/EquationDisplay';
 import DebugPanel from './components/DebugPanel';
 import { MathJaxProvider } from './utils/MathJaxContext';
+import { DEFAULT_SEARCH_LEVEL, parseSearchLevel } from './utils/searchLevels';
 import './App.css';
 
 // List of possible header prompts; one will be selected at random per session
@@ -51,7 +52,8 @@ function App() {
     solveForX: false,
     neverUseSymbols: '',
     onlyOneSymbols: '',
-    onlyUseSymbols: ''
+    onlyUseSymbols: '',
+    searchLevel: DEFAULT_SEARCH_LEVEL
   });
 
   // True while the user is editing the input. The first change of an edit
@@ -59,8 +61,8 @@ function App() {
   // by one entry per committed value and Back returns to the previous one.
   const editingRef = useRef(false);
 
-  // Write the value and solve flag to the URL (and history state)
-  const syncUrl = (value, solve, { replace }) => {
+  // Write the value, solve flag and search depth to the URL (and history state)
+  const syncUrl = (value, solve, level, { replace }) => {
     const url = new URL(window.location);
     if (value) {
       url.searchParams.set('T', value);
@@ -72,7 +74,13 @@ function App() {
     } else {
       url.searchParams.delete('solve');
     }
-    const state = { T: value, solve };
+    // The default level is left out, so URLs without it keep their meaning
+    if (level !== DEFAULT_SEARCH_LEVEL) {
+      url.searchParams.set('l', String(level));
+    } else {
+      url.searchParams.delete('l');
+    }
+    const state = { T: value, solve, l: level };
     if (replace) {
       window.history.replaceState(state, '', url);
     } else {
@@ -86,24 +94,26 @@ function App() {
     const tParam = getTargetParam(urlParams);
     const solveParam = urlParams.get('solve');
     const solve = solveParam === 'true';
+    // An unknown level falls back to the default, as a malformed T does
+    const level = parseSearchLevel(urlParams.get('l'));
 
-    // Handle solve parameter
-    if (solveParam !== null) {
-      setRiesOptions(prev => ({ ...prev, solveForX: solve }));
+    // Handle solve and search depth parameters
+    if (solveParam !== null || urlParams.has('l')) {
+      setRiesOptions(prev => ({ ...prev, solveForX: solve, searchLevel: level }));
     }
 
     // Generate a random value between 0 and 10 if no valid T value is provided
     const value = tParam ?? (Math.random() * 10).toFixed(6);
     setInputValue(value);
     // Record the initial value without adding a history entry
-    syncUrl(value, solve, { replace: true });
+    syncUrl(value, solve, level, { replace: true });
   }, []);
 
   // Apply a new input value. Typing keeps replacing the entry pushed by the
   // first keystroke; a committed value (dice button) ends the edit session.
   const updateInputValue = (value, { commit = false } = {}) => {
     setInputValue(value);
-    syncUrl(value, riesOptions.solveForX, { replace: editingRef.current && !commit });
+    syncUrl(value, riesOptions.solveForX, riesOptions.searchLevel, { replace: editingRef.current && !commit });
     editingRef.current = !commit;
   };
 
@@ -128,12 +138,14 @@ function App() {
     // If the argument is an event (from the solution type selector)
     if (newOptions.target) {
       const { name, value } = newOptions.target;
-      setRiesOptions(prev => ({ ...prev, [name]: value }));
-      return;
+      newOptions = { [name]: value };
     }
-    // Changing solveForX commits the current value and gets its own history entry
-    if ('solveForX' in newOptions && newOptions.solveForX !== riesOptions.solveForX) {
-      syncUrl(inputValue, newOptions.solveForX, { replace: false });
+    // Changing solveForX or the search depth commits the current value and
+    // gets its own history entry
+    const solve = 'solveForX' in newOptions ? newOptions.solveForX : riesOptions.solveForX;
+    const level = 'searchLevel' in newOptions ? newOptions.searchLevel : riesOptions.searchLevel;
+    if (solve !== riesOptions.solveForX || level !== riesOptions.searchLevel) {
+      syncUrl(inputValue, solve, level, { replace: false });
       editingRef.current = false;
     }
     setRiesOptions(prev => ({ ...prev, ...newOptions }));
@@ -151,11 +163,12 @@ function App() {
       // Use history state if available (for popstate), else fall back to URL
       const t = event.state?.T ?? getTargetParam(urlParams) ?? '';
       const solve = event.state?.solve ?? (urlParams.get('solve') === 'true');
+      const level = parseSearchLevel(event.state?.l ?? urlParams.get('l'));
 
       // The restored value is a committed one; the next keystroke starts a new entry
       editingRef.current = false;
       setInputValue(t);
-      setRiesOptions(prev => ({ ...prev, solveForX: solve }));
+      setRiesOptions(prev => ({ ...prev, solveForX: solve, searchLevel: level }));
     };
     window.addEventListener('popstate', handlePop);
     return () => window.removeEventListener('popstate', handlePop);

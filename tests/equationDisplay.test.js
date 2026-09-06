@@ -21,10 +21,10 @@ const RIES_OUTPUT = `Your target value: T = 2.5
 x + 1 = 2 x for x = T - 3.5
 `
 
-function display(client, targetValue) {
+function display(client, targetValue, options = OPTIONS) {
   return (
     <QueryClientProvider client={client}>
-      <EquationDisplay targetValue={targetValue} riesOptions={OPTIONS} />
+      <EquationDisplay targetValue={targetValue} riesOptions={options} />
     </QueryClientProvider>
   )
 }
@@ -88,5 +88,38 @@ describe('Pending calculation', () => {
     await act(async () => { jest.advanceTimersByTime(200) })
     expect(sendRiesRequest).toHaveBeenCalledTimes(2)
     expect(sendRiesRequest).toHaveBeenLastCalledWith('2.55', OPTIONS)
+  })
+})
+
+describe('Deeper search hint', () => {
+  let client
+
+  beforeEach(() => {
+    jest.useFakeTimers()
+    client = new QueryClient()
+    sendRiesRequest.mockReset()
+    sendRiesRequest.mockReturnValue(new Promise(() => {}))
+  })
+
+  afterEach(() => {
+    client.clear()
+    jest.useRealTimers()
+  })
+
+  it('says the search is deeper while a level-3 calculation is pending', async () => {
+    const options = { ...OPTIONS, searchLevel: 3 }
+    render(display(client, '2.5', options))
+    expect(screen.getByText('Calculating equations for 2.5...')).toBeInTheDocument()
+    expect(screen.getByText(/Searching deeper \(-l3\)/)).toBeInTheDocument()
+
+    await act(async () => { jest.advanceTimersByTime(200) })
+    expect(sendRiesRequest).toHaveBeenCalledWith('2.5', options)
+    expect(screen.getByText(/Searching deeper \(-l3\)/)).toBeInTheDocument()
+  })
+
+  it('shows no hint at the default level', () => {
+    render(display(client, '2.5'))
+    expect(screen.getByText('Calculating equations for 2.5...')).toBeInTheDocument()
+    expect(screen.queryByText(/Searching deeper/)).not.toBeInTheDocument()
   })
 })

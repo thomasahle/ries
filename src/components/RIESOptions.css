@@ -32,8 +32,8 @@
 /* Options section with controls */
 .options-wrapper {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 12px 24px;
   margin-bottom: 15px;
 }
 
@@ -57,6 +57,11 @@
   font-size: 14px;
   margin-left: 8px;
   width: 120px;
+}
+
+/* The level labels ("Normal (-l2, default)") need more room */
+.search-depth-select {
+  width: auto;
 }
 
 /* Debug Output Section */
