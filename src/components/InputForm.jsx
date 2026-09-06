@@ -24,6 +24,7 @@ const InputForm = ({ value, onChange, onCommit, onRandom }) => {
         onBlur={onCommit}
         step="any"
         placeholder="Enter a number"
+        aria-label="Number to find equations for"
       />
       {onRandom && (
         <button
