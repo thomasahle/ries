@@ -18,8 +18,11 @@ const promptOptions = [
   'Key in a value to view matching symbolic forms:'
 ];
 
-// A plain decimal number, optionally signed and with an exponent (e.g. "-2.5", ".5", "1e-7")
-const NUMBER_PATTERN = /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/;
+// A plain decimal number as the number input accepts it (HTML's "valid
+// floating-point number"): an optional minus sign, digits with an optional
+// fraction, an optional exponent (e.g. "-2.5", ".5", "1e-7"). Anything the
+// input would blank out, such as "+5" or "5.", must not reach RIES either.
+const NUMBER_PATTERN = /^-?(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?$/;
 
 /**
  * Read the T query parameter, accepting only strings that are a finite number.
