@@ -109,30 +109,30 @@ const RIESOptions = ({ isVisible, onToggle, onOptionsChange, riesOptions }) => {
     onlyUseSymbols: riesOptions?.onlyUseSymbols || '',
   });
 
-  // Handle symbol state toggle
+  // Handle symbol state toggle. The next state is derived from the rendered
+  // state here in the event handler rather than in a setState updater: React
+  // may run updaters during render (twice in StrictMode), so they must not
+  // have side effects such as notifying the parent.
   const handleSymbolClick = (symbolId) => {
     if (!symbolId) return;
-    
-    setSymbolStates(prevStates => {
-      // Cycle through states: enabled -> never -> once -> only -> enabled
-      const currentState = prevStates[symbolId] || 'enabled';
-      let nextState;
-      
-      switch (currentState) {
-        case 'enabled': nextState = 'never'; break;
-        case 'never': nextState = 'once'; break;
-        case 'once': nextState = 'only'; break;
-        case 'only': nextState = 'enabled'; break;
-        default: nextState = 'enabled';
-      }
-      
-      const newStates = { ...prevStates, [symbolId]: nextState };
-      
-      // Build options based on the current states
-      updateOptionsFromSymbolStates(newStates);
-      
-      return newStates;
-    });
+
+    // Cycle through states: enabled -> never -> once -> only -> enabled
+    const currentState = symbolStates[symbolId] || 'enabled';
+    let nextState;
+
+    switch (currentState) {
+      case 'enabled': nextState = 'never'; break;
+      case 'never': nextState = 'once'; break;
+      case 'once': nextState = 'only'; break;
+      case 'only': nextState = 'enabled'; break;
+      default: nextState = 'enabled';
+    }
+
+    const newStates = { ...symbolStates, [symbolId]: nextState };
+    setSymbolStates(newStates);
+
+    // Build options based on the current states
+    updateOptionsFromSymbolStates(newStates);
   };
 
   // Update options based on symbol states
@@ -208,12 +208,11 @@ const RIESOptions = ({ isVisible, onToggle, onOptionsChange, riesOptions }) => {
   const handleOptionChange = (e) => {
     const { name, value, type, checked } = e.target;
     const newValue = type === 'checkbox' ? checked : value;
-    
-    setOptions(prevOptions => {
-      const newOptions = { ...prevOptions, [name]: newValue };
-      onOptionsChange(newOptions);
-      return newOptions;
-    });
+
+    // Notify the parent from the handler, not from a setState updater
+    const newOptions = { ...options, [name]: newValue };
+    setOptions(newOptions);
+    onOptionsChange(newOptions);
   };
 
   // Determine button class based on state
