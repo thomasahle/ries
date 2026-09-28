@@ -13,7 +13,19 @@
       window.dataLayer = window.dataLayer || [];
       window.gtag = function(){dataLayer.push(arguments);};
       gtag('js', new Date());
-      gtag('config', 'G-40XB6Q54CE');
+      // full_referrer / referrer_host / landing_page / ref_tag are event-scoped
+      // custom dimensions of the property, shared with thomasahle.com.
+      var ref = document.referrer || '';
+      var refHost = '';
+      if (ref) { try { refHost = new URL(ref).hostname || ref; } catch (e) { refHost = ref; } }
+      var gaParams = {
+        full_referrer: ref || '(direct)',
+        referrer_host: refHost || '(direct)',
+        landing_page: location.pathname + location.search
+      };
+      var refTag = new URLSearchParams(location.search).get('ref');
+      if (refTag) { gaParams.ref_tag = refTag; }
+      gtag('config', 'G-40XB6Q54CE', gaParams);
     }
   </script>
 
